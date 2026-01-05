@@ -5,7 +5,6 @@ import 'package:bl_inshort/features/shell/navigation_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bl_inshort/features/feed/providers.dart';
-import 'package:go_router/go_router.dart';
 import 'widgets/feed_cards.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
@@ -121,11 +120,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       return AdSlotWidget(
                         meta: item,
                         runtime: adsRuntime,
-                        fallback: FeedCard(item: item),
+                        fallback: FeedCard(
+                          item: item,
+                          count: state.count,
+                          index: index,
+                        ),
                       );
                     }
 
-                    return FeedCard(item: item);
+                    return FeedCard(
+                      item: item,
+                      count: state.count,
+                      index: index,
+                    );
                   },
                 );
               },
@@ -137,8 +144,14 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             onSettingsTap: () {
               bottomNavigationController.state = 0;
             },
-            onSearchTap: () {
-              context.push('/search');
+            onRefreshTap: () {
+              ref.read(feedControllerProvider.notifier).loadInitial();
+              // scroll to top
+              _scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
             },
           ),
         ],
@@ -149,11 +162,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
 class _FeedTopOverlay extends StatelessWidget {
   final VoidCallback onSettingsTap;
-  final VoidCallback onSearchTap;
+  final VoidCallback onRefreshTap;
 
   const _FeedTopOverlay({
     required this.onSettingsTap,
-    required this.onSearchTap,
+    required this.onRefreshTap,
   });
 
   @override
@@ -168,7 +181,7 @@ class _FeedTopOverlay extends StatelessWidget {
           children: [
             _OverlayButton(icon: Icons.settings, onTap: onSettingsTap),
             const Spacer(),
-            _OverlayButton(icon: Icons.search, onTap: onSearchTap),
+            _OverlayButton(icon: Icons.refresh, onTap: onRefreshTap),
           ],
         ),
       ),

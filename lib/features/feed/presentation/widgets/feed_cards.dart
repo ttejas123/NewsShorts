@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:bl_inshort/data/dto/feed/feed_dto.dart';
 import 'package:bl_inshort/data/models/feeds/feed_entity.dart';
 import 'package:bl_inshort/data/models/feeds/resource_entity.dart';
@@ -8,12 +7,18 @@ import 'package:bl_inshort/features/webview/presentation/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class FeedCard extends StatelessWidget {
   final FeedEntity item;
+  final int count;
+  final int index;
 
-  const FeedCard({super.key, required this.item});
+  const FeedCard({
+    super.key,
+    required this.item,
+    required this.count,
+    required this.index,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,7 @@ class FeedCard extends StatelessWidget {
       case FeedLayoutType.browserCard:
         return _BrowserViewCard(item: item);
       case FeedLayoutType.standardCard:
-        return StandardVisualCard(item: item);
+        return StandardVisualCard(item: item, count: count, index: index);
     }
   }
 }
@@ -735,14 +740,178 @@ class _RelatedImagesGalleryState extends State<RelatedImagesGallery> {
   }
 }
 
+String timeAgo(DateTime date) {
+  final diff = DateTime.now().difference(date);
+  if (diff.inMinutes < 60) return '${diff.inMinutes} mins ago';
+  if (diff.inHours < 24) return '${diff.inHours} hrs ago';
+  return '${diff.inDays} days ago';
+}
+
+class _BottomInfoStrip extends StatelessWidget {
+  final FeedEntity item;
+  final VoidCallback shareLink;
+  final int numberRemaining;
+
+  const _BottomInfoStrip({
+    super.key,
+    required this.item,
+    required this.shareLink,
+    required this.numberRemaining,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          /// 🔵 Blue pill
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.85),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '$numberRemaining stories remaining below',
+              style: textTheme.labelMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 50),
+
+          /// Divider + time + share (ALL INSIDE STACK)
+          SizedBox(
+            height: 40, // important: gives Stack a hit-test box
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                /// Divider (disable hit testing)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Divider(
+                      height: 1,
+                      thickness: 0.6,
+                      color: colors.onSurface.withOpacity(0.15),
+                    ),
+                  ),
+                ),
+
+                /// Time (left)
+                Positioned(
+                  left: 0,
+                  top: -5,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.redAccent,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        timeAgo(item.publishedAt),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colors.onSurface.withOpacity(0.65),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                /// Share button (right)
+                Positioned(
+                  right: 0,
+                  top: 1,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: shareLink,
+                      borderRadius: BorderRadius.circular(18),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: const BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.share,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  left: 0,
+                  top: 28,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      children: [
+                        Text(
+                          'more at ',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          "Yalla News",
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.onSurface.withOpacity(0.65),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                /// Source
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+void _shareLink(BuildContext context, String url, String subject) {
+  final box = context.findRenderObject() as RenderBox?;
+
+  if (box == null) return;
+
+  Share.share(
+    url,
+    subject: subject,
+    sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
+  );
+}
+
 class StandardVisualCard extends StatelessWidget {
   final FeedEntity item;
+  final int count;
+  final int index;
 
-  const StandardVisualCard({super.key, required this.item});
-
-  void _shareLink() {
-    Share.share('blinshort://feed/${item.slug}', subject: item.title);
-  }
+  const StandardVisualCard({
+    super.key,
+    required this.item,
+    required this.count,
+    required this.index,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -751,7 +920,7 @@ class StandardVisualCard extends StatelessWidget {
     final textTheme = theme.textTheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    const double contentHeight = 420;
+    const double contentHeight = 350;
     const double floatingOffset = -4;
 
     return Container(
@@ -847,27 +1016,30 @@ class StandardVisualCard extends StatelessWidget {
                   left: 16,
                   right: 16,
                   bottom: contentHeight - floatingOffset,
-                  child: _FloatingActionRow(onShare: _shareLink),
+                  child: _FloatingActionRow(
+                    shareLink: () => _shareLink(
+                      context,
+                      "blinshort://feed/${item.id}",
+                      item.title,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
 
-          /// BOTTOM CTA
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40), // 👈 moves CTA upward
-            child: (item.resources.length > 1
-                ? RelatedImagesRow(resources: item.resources)
-                : _BottomCTA(
-                    isDark: isDark,
-                    onTap: () async {
-                      final uri = Uri.parse(item.source.website);
-                      if (await canLaunchUrl(uri)) {
-                        launchUrl(uri, mode: LaunchMode.externalApplication);
-                      }
-                    },
-                  )),
+          const SizedBox(height: 8),
+
+          /// ✅ NEW BOTTOM INFO (added)
+          _BottomInfoStrip(
+            numberRemaining: count - index + 1,
+            item: item,
+            shareLink: () {
+              _shareLink(context, "blinshort://feed/${item.id}", item.title);
+            },
           ),
+
+          const SizedBox(height: 14),
         ],
       ),
     );
@@ -879,9 +1051,9 @@ class StandardVisualCard extends StatelessWidget {
 /// ─────────────────────────────────────────────
 
 class _FloatingActionRow extends StatelessWidget {
-  final VoidCallback onShare;
+  const _FloatingActionRow({required this.shareLink});
 
-  const _FloatingActionRow({required this.onShare});
+  final VoidCallback shareLink;
 
   @override
   Widget build(BuildContext context) {
@@ -918,7 +1090,7 @@ class _FloatingActionRow extends StatelessWidget {
               ),
               const SizedBox(width: 14),
               InkWell(
-                onTap: onShare,
+                onTap: shareLink,
                 child: Icon(
                   Icons.share,
                   color: colors.onSurfaceVariant,

@@ -14,6 +14,7 @@ class FeedState {
   final bool isLoadingMore;
   final bool hasMore;
   final int pageSize;
+  final int count;
   final Object? error;
 
   const FeedState({
@@ -22,17 +23,19 @@ class FeedState {
     required this.isLoadingMore,
     required this.hasMore,
     required this.pageSize,
+    required this.count,
     required this.error,
   });
 
   factory FeedState.initial() => const FeedState(
-        items: [],
-        isInitialLoading: false,
-        isLoadingMore: false,
-        hasMore: true,
-        pageSize: 5,
-        error: null,
-      );
+    items: [],
+    isInitialLoading: false,
+    isLoadingMore: false,
+    hasMore: true,
+    pageSize: 5,
+    count: 0,
+    error: null,
+  );
 
   FeedState copyWith({
     List<FeedEntity>? items,
@@ -40,6 +43,7 @@ class FeedState {
     bool? isLoadingMore,
     bool? hasMore,
     int? pageSize,
+    int? count,
     Object? error,
   }) {
     return FeedState(
@@ -48,6 +52,7 @@ class FeedState {
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasMore: hasMore ?? this.hasMore,
       pageSize: pageSize ?? this.pageSize,
+      count: count ?? this.count,
       error: error,
     );
   }
@@ -63,48 +68,38 @@ class FeedController extends StateNotifier<FeedState> {
   Future<void> loadInitial() async {
     if (state.isInitialLoading) return;
 
-    state = state.copyWith(
-      isInitialLoading: true,
-      error: null,
-    );
+    state = state.copyWith(isInitialLoading: true, error: null);
 
     try {
-      final items = await _repo.fetchFeed();
+      final response = await _repo.fetchFeed();
 
       state = state.copyWith(
         isInitialLoading: false,
-        items: items,
-        hasMore: true, // still infinite for now
+        items: response['entity'],
+        count: response['count'],
+        hasMore: response['hasMore'],
       );
     } catch (e) {
-      state = state.copyWith(
-        isInitialLoading: false,
-        error: e,
-      );
+      state = state.copyWith(isInitialLoading: false, error: e);
     }
   }
 
   Future<void> loadMore() async {
     if (state.isLoadingMore || !state.hasMore) return;
 
-    state = state.copyWith(
-      isLoadingMore: true,
-      error: null,
-    );
+    state = state.copyWith(isLoadingMore: true, error: null);
 
     try {
-      final items = await _repo.fetchFeed();
+      final response = await _repo.fetchFeed();
 
       state = state.copyWith(
         isLoadingMore: false,
-        items: [...state.items, ...items],
-        hasMore: true,
+        items: [...state.items, ...response['entity']],
+        count: response['count'],
+        hasMore: response['hasMore'],
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoadingMore: false,
-        error: e,
-      );
+      state = state.copyWith(isLoadingMore: false, error: e);
     }
   }
 }
