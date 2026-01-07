@@ -42,7 +42,7 @@ enum ItemType {
 }
 
 class FeedDTO extends FactorySafeDto<FeedDTO> {
-  final int id;
+  final String id;
   final String title;
   final String subtitle;
   final String description;

@@ -920,6 +920,7 @@ class StandardVisualCard extends StatelessWidget {
     final textTheme = theme.textTheme;
     final isDark = theme.brightness == Brightness.dark;
 
+    const double imageHeight = 300; // 👈 CONTROL IMAGE SIZE
     const double contentHeight = 350;
     const double floatingOffset = -4;
 
@@ -934,7 +935,11 @@ class StandardVisualCard extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 /// Image
-                Positioned.fill(
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: imageHeight, // 🎯 FIXED IMAGE HEIGHT (tweak freely)
                   child: CachedNetworkImage(
                     imageUrl: item.resources.isNotEmpty
                         ? item.resources.first.url

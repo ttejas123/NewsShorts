@@ -11,7 +11,7 @@ import 'package:bl_inshort/data/models/feeds/status_entity.dart';
 import 'package:bl_inshort/data/models/feeds/tag_entity.dart';
 
 class FeedEntity {
-  final int id;
+  final String id;
   final String title;
   final String subtitle;
   final String description;
