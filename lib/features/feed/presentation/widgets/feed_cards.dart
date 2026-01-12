@@ -764,6 +764,8 @@ class _BottomInfoStrip extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
+    final bool showRemaining =
+        numberRemaining > 0 && numberRemaining <= 10 && (numberRemaining % 5 == 0 || numberRemaining <= 2);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
@@ -771,20 +773,28 @@ class _BottomInfoStrip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           /// 🔵 Blue pill
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.85),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '$numberRemaining stories remaining below',
-              style: textTheme.labelMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
+          if (showRemaining) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.85),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                numberRemaining == 1
+                    ? 'Last story below'
+                    : '$numberRemaining stories remaining below',
+                style: textTheme.labelMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
+            const SizedBox(height: 12),
+          ],
 
           const SizedBox(height: 50),
 
@@ -920,9 +930,9 @@ class StandardVisualCard extends StatelessWidget {
     final textTheme = theme.textTheme;
     final isDark = theme.brightness == Brightness.dark;
 
-    const double imageHeight = 300; // 👈 CONTROL IMAGE SIZE
-    const double contentHeight = 350;
-    const double floatingOffset = -4;
+    const double imageHeight = 310; // 👈 CONTROL IMAGE SIZE
+    const double contentHeight = 400;
+    const double floatingOffset = -10;
 
     return Container(
       height: 560,
@@ -1037,7 +1047,7 @@ class StandardVisualCard extends StatelessWidget {
 
           /// ✅ NEW BOTTOM INFO (added)
           _BottomInfoStrip(
-            numberRemaining: count - index + 1,
+            numberRemaining: count - (index + 1),
             item: item,
             shareLink: () {
               _shareLink(context, "blinshort://feed/${item.id}", item.title);

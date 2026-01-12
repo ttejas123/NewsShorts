@@ -1,28 +1,3 @@
-// import 'package:flutter/widgets.dart';
-// import '../../ads_types.dart';
-// import '../ad_provider.dart';
-
-// class GoogleAdsProvider implements AdProvider {
-//   @override
-//   AdProviderType get type => AdProviderType.google;
-
-//   @override
-//   Widget buildAd({
-//     required AdMeta meta,
-//     required VoidCallback onLoaded,
-//     required VoidCallback onFailed,
-//   }) {
-//     // TODO: Replace with Google Native Ad SDK
-//     Future.microtask(onLoaded);
-
-//     return Container(
-//       height: 120,
-//       alignment: Alignment.center,
-//       child: const Text('Google Ad'),
-//     );
-//   }
-// }
-
 import 'package:bl_inshort/data/models/feeds/feed_entity.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -33,6 +8,10 @@ import '../ad_provider.dart';
 class _GoogleNativeAdWidgetState extends State<_GoogleNativeAdWidget> {
   NativeAd? _nativeAd;
   bool _isLoaded = false;
+  double _height(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    return (width / 1.91) + 110; // MUST match iOS layout
+  }
 
   @override
   void initState() {
@@ -72,12 +51,13 @@ class _GoogleNativeAdWidgetState extends State<_GoogleNativeAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final height = _height(context);
     if (!_isLoaded) {
       // Keep height to avoid jump
-      return const SizedBox(height: 120);
+      return SizedBox(height: height);
     }
 
-    return SizedBox(height: 120, child: AdWidget(ad: _nativeAd!));
+    return SizedBox(height: height, child: AdWidget(ad: _nativeAd!));
   }
 }
 

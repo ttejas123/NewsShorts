@@ -1,0 +1,73 @@
+import 'package:flutter/widgets.dart';
+import 'dart:math' as math;
+
+class SnapScrollPhysics extends ScrollPhysics {
+  final double itemExtent;
+
+  const SnapScrollPhysics({required this.itemExtent, ScrollPhysics? parent})
+    : super(parent: parent);
+
+  @override
+  SnapScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return SnapScrollPhysics(
+      itemExtent: itemExtent,
+      parent: buildParent(ancestor),
+    );
+  }
+
+  double _getPage(ScrollMetrics position) {
+    return position.pixels / itemExtent;
+  }
+
+  double _getPixels(double page) {
+    return page * itemExtent;
+  }
+
+  double _getTargetPage(
+    ScrollMetrics position,
+    Tolerance tolerance,
+    double velocity,
+  ) {
+    double page = _getPage(position);
+
+    if (velocity.abs() > tolerance.velocity) {
+      page += velocity > 0 ? 1 : -1;
+    }
+
+    return page.roundToDouble();
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    final tolerance = this.tolerance;
+
+    if ((velocity.abs() <= tolerance.velocity) &&
+        (position.pixels - position.minScrollExtent).abs() <
+            tolerance.distance) {
+      return null;
+    }
+
+    final targetPage = _getTargetPage(position, tolerance, velocity);
+    final targetPixels = _getPixels(
+      targetPage.clamp(
+        position.minScrollExtent / itemExtent,
+        position.maxScrollExtent / itemExtent,
+      ),
+    );
+
+    if (targetPixels == position.pixels) {
+      return null;
+    }
+
+    return ScrollSpringSimulation(
+      spring,
+      position.pixels,
+      targetPixels,
+      velocity,
+      tolerance: tolerance,
+    );
+  }
+}

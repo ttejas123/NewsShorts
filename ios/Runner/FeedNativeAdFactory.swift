@@ -8,15 +8,19 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
     customOptions: [AnyHashable : Any]? = nil
   ) -> GADNativeAdView {
 
-    // Root ad container
+    // ===========================
+    // ROOT AD VIEW
+    // ===========================
     let adView = GADNativeAdView()
     adView.backgroundColor = .black
     adView.clipsToBounds = true
     adView.layer.cornerRadius = 14
+    adView.translatesAutoresizingMaskIntoConstraints = true
+    adView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
-    // ---------------------------
+    // ===========================
     // HERO MEDIA (IMAGE / VIDEO)
-    // ---------------------------
+    // ===========================
     let mediaView = GADMediaView()
     mediaView.mediaContent = nativeAd.mediaContent
     mediaView.contentMode = .scaleAspectFill
@@ -26,27 +30,27 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
     adView.addSubview(mediaView)
     adView.mediaView = mediaView
 
-    // ---------------------------
+    // ===========================
     // BOTTOM OVERLAY
-    // ---------------------------
+    // ===========================
     let overlay = UIView()
     overlay.backgroundColor = UIColor.black.withAlphaComponent(0.55)
     overlay.translatesAutoresizingMaskIntoConstraints = false
-
+    overlay.isUserInteractionEnabled = false // 🔑 REQUIRED
     adView.addSubview(overlay)
 
-    // ---------------------------
+    // ===========================
     // SPONSORED LABEL
-    // ---------------------------
+    // ===========================
     let sponsoredLabel = UILabel()
     sponsoredLabel.text = "Sponsored"
     sponsoredLabel.textColor = .lightGray
     sponsoredLabel.font = UIFont.systemFont(ofSize: 11, weight: .medium)
     sponsoredLabel.translatesAutoresizingMaskIntoConstraints = false
 
-    // ---------------------------
+    // ===========================
     // HEADLINE
-    // ---------------------------
+    // ===========================
     let headlineLabel = UILabel()
     headlineLabel.text = nativeAd.headline
     headlineLabel.textColor = .white
@@ -54,9 +58,9 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
     headlineLabel.numberOfLines = 2
     headlineLabel.translatesAutoresizingMaskIntoConstraints = false
 
-    // ---------------------------
+    // ===========================
     // CTA BUTTON
-    // ---------------------------
+    // ===========================
     let ctaButton = UIButton(type: .system)
     ctaButton.setTitle(nativeAd.callToAction ?? "Open", for: .normal)
     ctaButton.setTitleColor(.white, for: .normal)
@@ -65,17 +69,18 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
     ctaButton.layer.cornerRadius = 8
     ctaButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
     ctaButton.translatesAutoresizingMaskIntoConstraints = false
+    ctaButton.removeFromSuperview()
 
-    // ---------------------------
+    // ===========================
     // ADD OVERLAY CONTENT
-    // ---------------------------
+    // ===========================
     overlay.addSubview(sponsoredLabel)
     overlay.addSubview(headlineLabel)
     overlay.addSubview(ctaButton)
 
-    // ---------------------------
-    // AUTO LAYOUT
-    // ---------------------------
+    // ===========================
+    // AUTO LAYOUT (FULLY CONSTRAINED)
+    // ===========================
     NSLayoutConstraint.activate([
 
       // Media fills entire card
@@ -84,10 +89,11 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
       mediaView.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
       mediaView.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
 
-      // Fixed height (adjust if needed)
-      mediaView.heightAnchor.constraint(equalToConstant: 420),
+      // Aspect ratio (AdMob recommended)
+      mediaView.heightAnchor.constraint(equalTo: mediaView.widthAnchor, multiplier: 1 / 1.91),
 
       // Overlay pinned to bottom
+      // overlay.topAnchor.constraint(equalTo: mediaContainer.bottomAnchor),
       overlay.leadingAnchor.constraint(equalTo: adView.leadingAnchor),
       overlay.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
       overlay.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
@@ -103,13 +109,13 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
       headlineLabel.trailingAnchor.constraint(equalTo: ctaButton.leadingAnchor, constant: -10),
 
       // CTA button
-      ctaButton.centerYAnchor.constraint(equalTo: headlineLabel.centerYAnchor),
+      ctaButton.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
       ctaButton.trailingAnchor.constraint(equalTo: overlay.trailingAnchor, constant: -12)
     ])
 
-    // ---------------------------
+    // ===========================
     // GOOGLE REQUIRED BINDINGS
-    // ---------------------------
+    // ===========================
     adView.headlineView = headlineLabel
     adView.callToActionView = ctaButton
     adView.mediaView = mediaView
