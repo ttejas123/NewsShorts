@@ -2,7 +2,7 @@ import 'package:bl_inshort/core/logging/factory_safe_dto_conversion.dart';
 import 'package:bl_inshort/data/models/feeds/language_entity.dart';
 
 class LanguageDto extends FactorySafeDto<LanguageDto> {
-  final int id;
+  int? id;
   final String name;
   final String code;
 

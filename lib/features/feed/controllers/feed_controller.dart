@@ -1,4 +1,3 @@
-// lib/features/feed/controllers/feed_controller.dart
 import 'package:bl_inshort/data/repositories/feed_repository.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -13,6 +12,7 @@ class FeedState {
   final bool isInitialLoading;
   final bool isLoadingMore;
   final bool hasMore;
+  final String? cursor;
   final int pageSize;
   final int count;
   final Object? error;
@@ -22,6 +22,7 @@ class FeedState {
     required this.isInitialLoading,
     required this.isLoadingMore,
     required this.hasMore,
+    required this.cursor,
     required this.pageSize,
     required this.count,
     required this.error,
@@ -32,7 +33,8 @@ class FeedState {
     isInitialLoading: false,
     isLoadingMore: false,
     hasMore: true,
-    pageSize: 5,
+    cursor: null,
+    pageSize: 20,
     count: 0,
     error: null,
   );
@@ -42,6 +44,7 @@ class FeedState {
     bool? isInitialLoading,
     bool? isLoadingMore,
     bool? hasMore,
+    String? cursor,
     int? pageSize,
     int? count,
     Object? error,
@@ -51,6 +54,7 @@ class FeedState {
       isInitialLoading: isInitialLoading ?? this.isInitialLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasMore: hasMore ?? this.hasMore,
+      cursor: cursor ?? this.cursor,
       pageSize: pageSize ?? this.pageSize,
       count: count ?? this.count,
       error: error,
@@ -71,13 +75,17 @@ class FeedController extends StateNotifier<FeedState> {
     state = state.copyWith(isInitialLoading: true, error: null);
 
     try {
-      final response = await _repo.fetchFeed();
+      final response = await _repo.fetchFeed(
+        cursor: null,
+        limit: state.pageSize,
+      );
 
       state = state.copyWith(
         isInitialLoading: false,
         items: response['entity'],
         count: response['count'],
         hasMore: response['hasMore'],
+        cursor: response['cursor'],
       );
     } catch (e) {
       state = state.copyWith(isInitialLoading: false, error: e);
@@ -90,13 +98,17 @@ class FeedController extends StateNotifier<FeedState> {
     state = state.copyWith(isLoadingMore: true, error: null);
 
     try {
-      final response = await _repo.fetchFeed();
+      final response = await _repo.fetchFeed(
+        cursor: state.cursor,
+        limit: state.pageSize,
+      );
 
       state = state.copyWith(
         isLoadingMore: false,
         items: [...state.items, ...response['entity']],
         count: response['count'],
         hasMore: response['hasMore'],
+        cursor: response['cursor'],
       );
     } catch (e) {
       state = state.copyWith(isLoadingMore: false, error: e);

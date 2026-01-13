@@ -25,7 +25,9 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
     mediaView.mediaContent = nativeAd.mediaContent
     mediaView.contentMode = .scaleAspectFill
     mediaView.clipsToBounds = true
-    mediaView.translatesAutoresizingMaskIntoConstraints = false
+    mediaView.translatesAutoresizingMaskIntoConstraints = true
+    mediaView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    mediaView.frame = adView.bounds
 
     adView.addSubview(mediaView)
     adView.mediaView = mediaView
@@ -69,7 +71,7 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
     ctaButton.layer.cornerRadius = 8
     ctaButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
     ctaButton.translatesAutoresizingMaskIntoConstraints = false
-    ctaButton.removeFromSuperview()
+    // ctaButton.removeFromSuperview()
 
     // ===========================
     // ADD OVERLAY CONTENT
@@ -90,7 +92,7 @@ class FeedNativeAdFactory: NSObject, FLTNativeAdFactory {
       mediaView.bottomAnchor.constraint(equalTo: adView.bottomAnchor),
 
       // Aspect ratio (AdMob recommended)
-      mediaView.heightAnchor.constraint(equalTo: mediaView.widthAnchor, multiplier: 1 / 1.91),
+      // mediaView.heightAnchor.constraint(equalTo: mediaView.widthAnchor, multiplier: 1 / 1.91),
 
       // Overlay pinned to bottom
       // overlay.topAnchor.constraint(equalTo: mediaContainer.bottomAnchor),

@@ -23,15 +23,24 @@ class SnapScrollPhysics extends ScrollPhysics {
     return page * itemExtent;
   }
 
+  double _getFlingPages(double velocity) {
+    final v = velocity.abs();
+
+    if (v < 1200) return 0; // snap back / nearest
+    if (v < 2800) return 1; // normal swipe
+    return 1.5; // hard fling (MAX)
+  }
+
   double _getTargetPage(
     ScrollMetrics position,
     Tolerance tolerance,
     double velocity,
   ) {
     double page = _getPage(position);
+    final flingPages = _getFlingPages(velocity);
 
     if (velocity.abs() > tolerance.velocity) {
-      page += velocity > 0 ? 1 : -1;
+      page += velocity > 0 ? flingPages : -flingPages;
     }
 
     return page.roundToDouble();

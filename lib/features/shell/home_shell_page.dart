@@ -1,7 +1,7 @@
-import 'package:bl_inshort/features/profile/presentation/profile_page.dart';
 import 'package:bl_inshort/features/settings/presentation/settings_page.dart';
 import 'package:bl_inshort/features/source/presentation/source_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'navigation_providers.dart';
 import 'package:bl_inshort/features/feed/presentation/feed_page.dart';
@@ -35,8 +35,7 @@ class _HomeShellPageState extends ConsumerState<HomeShellPage> {
 
     // ✅ LISTEN HERE (correct place)
     ref.listen<int>(bottomNavIndexProvider, (previous, next) {
-      if (_pageController.hasClients &&
-          _pageController.page?.round() != next) {
+      if (_pageController.hasClients && _pageController.page?.round() != next) {
         _pageController.animateToPage(
           next,
           duration: const Duration(milliseconds: 250),
@@ -50,12 +49,9 @@ class _HomeShellPageState extends ConsumerState<HomeShellPage> {
         controller: _pageController,
         onPageChanged: (index) {
           controller.state = index;
+          HapticFeedback.selectionClick();
         },
-        children: const [
-          SettingsPage(),
-          FeedPage(),
-          SourceView(),
-        ],
+        children: const [SettingsPage(), FeedPage(), SourceView()],
       ),
     );
   }

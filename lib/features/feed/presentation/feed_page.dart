@@ -56,7 +56,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     // 🔥 Trigger loadMore ONLY near end
     if (index >= totalItems - 3 && // last 2–3 pages
-        !ref.read(feedControllerProvider).hasMore &&
+        ref.read(feedControllerProvider).hasMore &&
         !ref.read(feedControllerProvider).isLoadingMore) {
       debugPrint('🔄 Trying to load more');
       ref.read(feedControllerProvider.notifier).loadMore();

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:async';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -21,15 +22,22 @@ class _AppState extends ConsumerState<App> {
     _initializeApp();
   }
 
+  void _initAds() {
+    unawaited(MobileAds.instance.initialize());
+  }
+
+  void _loadTheme() {
+    ref.read(themeControllerProvider.notifier).loadTheme();
+  }
+
   Future<void> _initializeApp() async {
     // Let first frame render
     await Future.delayed(Duration.zero);
 
-    // 👇 init heavy stuff here
-    await MobileAds.instance.initialize();
-    await ref.read(themeControllerProvider.notifier).loadTheme();
-
     FlutterNativeSplash.remove();
+    // 👇 init heavy stuff here
+    _initAds();
+    _loadTheme();
   }
 
   @override

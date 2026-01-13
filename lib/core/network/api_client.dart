@@ -4,15 +4,15 @@ import 'package:dio/dio.dart';
 class ApiClient {
   final Dio dio;
 
-  ApiClient({required bool mockMode}) 
-      : dio = Dio(
-          BaseOptions(
-            baseUrl: "https://api.yalla.news",
-            connectTimeout: const Duration(seconds: 5),
-          ),
-        ) {
-          if (mockMode) {
-            dio.interceptors.add(MockInterceptor());
-          }
-        }
+  ApiClient({required bool mockMode})
+    : dio = Dio(
+        BaseOptions(
+          baseUrl: "http://localhost:3000",
+          connectTimeout: const Duration(seconds: 5),
+        ),
+      ) {
+    if (mockMode) {
+      dio.interceptors.add(MockInterceptor());
+    }
+  }
 }
