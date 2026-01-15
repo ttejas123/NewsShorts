@@ -1,0 +1,22 @@
+{
+    "appTitle": "Yalla News",
+    "login": "Login",
+    "logout": "Logout",
+    "settings": "Settings",
+    "settingsLanguage": "Language",
+    "settingsNotifications": "Notifications",
+    "settingsPersonalizeFeed": "Personalize Your Feed",
+    "settingsHdImage": "HD Image",
+    "settingsNightMode": "Night Mode",
+    "settingsNightModeDesc": "For better readability at night",
+    "settingsAutoplay": "Autoplay",
+    "settingsShareApp": "Share app",
+    "settingsRateApp": "Rate app",
+    "settingsTerms": "Terms & Conditions",
+    "onboardingRegionTitle": "Select Regions",
+    "onboardingRegionDesc": "In addition to GCC and world news which other regions would you be interested in localized news from ?",
+    "onboardingRegionNext": "Next",
+    "selectedLanguageTitle": "News on the go.",
+    "selectedLanguageDesc": "We summarize and curate news\nfocused on your interests so you can\nread more quickly.",
+    "selectedLanguageNext": "Next"
+}

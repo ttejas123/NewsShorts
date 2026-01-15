@@ -5,17 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LanguageSelectorSheet extends ConsumerWidget {
   const LanguageSelectorSheet({super.key});
-
   static final _languages = [
     LanguageEntity(id: 1, code: 'en', name: 'English'),
     LanguageEntity(id: 1, code: 'hi', name: 'हिन्दी'),
-    LanguageEntity(id: 1, code: 'kn', name: 'ಕನ್ನಡ'),
-    LanguageEntity(id: 1, code: 'ta', name: 'தமிழ்'),
-    LanguageEntity(id: 1, code: 'te', name: 'తెలుగు'),
-    LanguageEntity(id: 1, code: 'gu', name: 'ગુજરાતી'),
-    LanguageEntity(id: 1, code: 'mr', name: 'मराठी'),
-    LanguageEntity(id: 1, code: 'bn', name: 'বাংলা'),
-    LanguageEntity(id: 1, code: 'or', name: 'ଓଡ଼ିଆ'),
+    LanguageEntity(id: 1, code: 'ar', name: 'العربية'),
   ];
 
   @override

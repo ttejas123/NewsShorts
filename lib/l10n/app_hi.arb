@@ -1,0 +1,22 @@
+{
+    "appTitle": "बी एल न्यूज़",
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "settings": "सेटिंग्स",
+    "settingsLanguage": "भाषा",
+    "settingsNotifications": "सूचनाएं",
+    "settingsPersonalizeFeed": "अपना फ़ीड अनुकूलित करें",
+    "settingsHdImage": "एचडी इमेज",
+    "settingsNightMode": "नाइट मोड",
+    "settingsNightModeDesc": "रात में बेहतर पढ़ने के लिए",
+    "settingsAutoplay": "ऑटोप्ले",
+    "settingsShareApp": "ऐप शेयर करें",
+    "settingsRateApp": "ऐप को रेट करें",
+    "settingsTerms": "नियम और शर्तें",
+    "onboardingRegionTitle": "क्षेत्र चुनें",
+    "onboardingRegionDesc": "जीसीसी और विश्व समाचार के अलावा, आप किन अन्य क्षेत्रों से स्थानीय समाचार प्राप्त करने में रुचि रखते हैं?",
+    "onboardingRegionNext": "अगला",
+    "selectedLanguageTitle": "चलते-फिरते समाचार",
+    "selectedLanguageDesc": "हम आपकी रुचियों पर केंद्रित समाचारों को सारांशित और क्यूरेट करते हैं ताकि आप अधिक तेज़ी से पढ़ सकें।",
+    "selectedLanguageNext": "अगला"
+}

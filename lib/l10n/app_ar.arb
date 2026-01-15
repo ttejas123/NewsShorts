@@ -1,0 +1,22 @@
+{
+    "appTitle": "بي إل نيوز",
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "settings": "الإعدادات",
+    "settingsLanguage": "اللغة",
+    "settingsNotifications": "الإشعارات",
+    "settingsPersonalizeFeed": "تخصيص الخلاصة",
+    "settingsHdImage": "صور عالية الدقة",
+    "settingsNightMode": "الوضع الليلي",
+    "settingsNightModeDesc": "لقراءة أفضل في الليل",
+    "settingsAutoplay": "التشغيل التلقائي",
+    "settingsShareApp": "مشاركة التطبيق",
+    "settingsRateApp": "تقييم التطبيق",
+    "settingsTerms": "الشروط والأحكام",
+    "onboardingRegionTitle": "اختر المناطق",
+    "onboardingRegionDesc": "بالإضافة إلى أخبار دول مجلس التعاون الخليجي والعالم، ما هي المناطق الأخرى التي ترغب في الحصول على أخبار محلية منها؟",
+    "onboardingRegionNext": "التالي",
+    "selectedLanguageTitle": "أخبار أثناء التنقل",
+    "selectedLanguageDesc": "نقوم بتلخيص وتنظيم الأخبار\n التي تركز على اهتماماتك حتى تتمكن من\n القراءة بشكل أسرع.",
+    "selectedLanguageNext": "التالي"
+}
