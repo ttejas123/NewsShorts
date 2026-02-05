@@ -50,17 +50,19 @@ class SettingsController extends StateNotifier<SettingsState> {
   }
 
   Future<void> _load() async {
-    final lang = await repository.getSelectedLanguage();
-    final autoplay = await repository.isAutoplayEnabled();
-    final hdImages = await repository.isHdImagesEnabled();
-    final regions = await repository.getSelectedRegions();
+    final results = await Future.wait([
+      repository.getSelectedLanguage(),
+      repository.isAutoplayEnabled(),
+      repository.isHdImagesEnabled(),
+      repository.getSelectedRegions(),
+    ]);
 
     state = state.copyWith(
-      selectedLanguage: lang,
-      autoplayEnabled: autoplay,
-      hdImagesEnabled: hdImages,
-      selectedRegions: regions,
-      isInitialized: true, // ✅
+      selectedLanguage: results[0] as LanguageEntity?,
+      autoplayEnabled: results[1] as bool,
+      hdImagesEnabled: results[2] as bool,
+      selectedRegions: results[3] as Set<String>,
+      isInitialized: true,
     );
   }
 
