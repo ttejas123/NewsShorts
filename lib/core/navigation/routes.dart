@@ -7,6 +7,7 @@ import 'package:bl_inshort/features/onboarding/presentation/language_selection_s
 import 'package:bl_inshort/features/preferences/presentation/preferences_page.dart';
 import 'package:bl_inshort/features/settings/presentation/settings_page.dart';
 import 'package:bl_inshort/features/settings/provider.dart';
+import 'package:bl_inshort/features/splash/splash_screen.dart';
 import 'package:bl_inshort/features/webview/presentation/webview_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ GoRouter buildRouter(WidgetRef ref) {
         builder: (context, state) {
           // 🔄 Still loading → show splash / loader
           if (!settings.isInitialized) {
-            return const SizedBox(); // or SplashScreen
+            return const SplashScreen(); // or SplashScreen
           }
 
           // ✅ Onboarded
@@ -58,7 +59,7 @@ GoRouter buildRouter(WidgetRef ref) {
       ),
       GoRoute(path: '/feed', builder: (_, _) => const FeedPage()),
       GoRoute(path: '/search', builder: (_, _) => const SearchPage()),
- 
+
       // later: add story/detail routes here
       // GoRoute(
       //   path: '/story/:id',

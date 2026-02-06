@@ -5,7 +5,8 @@ flutter_native_splash:
 
   fullscreen: true
 
-  background_image: assets/background.png
+  # 👇 IMPORTANT: use solid color, not image
+  color: "#000000"
 
   android_12:
-    color: "#B7D4F1"
+    color: "#000000"
