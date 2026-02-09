@@ -2,11 +2,12 @@ flutter_native_splash:
   android: true
   ios: true
   web: false
+  image: assets/background.png
 
   fullscreen: true
 
   # 👇 IMPORTANT: use solid color, not image
-  color: "#000000"
+  color: "#CD0100"
 
   android_12:
-    color: "#000000"
+    color: "#CD0100"

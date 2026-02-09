@@ -24,7 +24,11 @@ GoRouter buildRouter(WidgetRef ref) {
         builder: (context, state) {
           // 🔄 Still loading → show splash / loader
           if (!settings.isInitialized) {
-            return const SplashScreen(); // or SplashScreen
+            return const SizedBox(); // or SplashScreen
+          }
+
+          if (!settings.onboardingIntroCompleted) {
+            return const SplashIntroScreen();
           }
 
           // ✅ Onboarded
