@@ -6,6 +6,7 @@ enum InterestPreference { interested, notInterested, neutral }
 
 class SettingsState {
   final LanguageEntity? selectedLanguage;
+  final bool onboardingIntroCompleted;
   final bool autoplayEnabled;
   final bool hdImagesEnabled;
   final Map<String, InterestPreference> interests;
@@ -21,6 +22,7 @@ class SettingsState {
     this.interests = const {},
     this.selectedRegions = const {},
     this.isInitialized = false,
+    this.onboardingIntroCompleted = false,
   });
 
   SettingsState copyWith({
@@ -30,6 +32,7 @@ class SettingsState {
     Map<String, InterestPreference>? interests,
     Set<String>? selectedRegions,
     bool? isInitialized,
+    bool? onboardingIntroCompleted,
   }) {
     return SettingsState(
       selectedLanguage: selectedLanguage ?? this.selectedLanguage,
@@ -38,6 +41,8 @@ class SettingsState {
       interests: interests ?? this.interests,
       selectedRegions: selectedRegions ?? this.selectedRegions,
       isInitialized: isInitialized ?? this.isInitialized,
+      onboardingIntroCompleted:
+          onboardingIntroCompleted ?? this.onboardingIntroCompleted,
     );
   }
 }
@@ -55,6 +60,7 @@ class SettingsController extends StateNotifier<SettingsState> {
       repository.isAutoplayEnabled(),
       repository.isHdImagesEnabled(),
       repository.getSelectedRegions(),
+      repository.isOnboardingIntroCompleted(),
     ]);
 
     state = state.copyWith(
@@ -63,6 +69,7 @@ class SettingsController extends StateNotifier<SettingsState> {
       hdImagesEnabled: results[2] as bool,
       selectedRegions: results[3] as Set<String>,
       isInitialized: true,
+      onboardingIntroCompleted: results[4] as bool,
     );
   }
 
@@ -117,4 +124,9 @@ class SettingsController extends StateNotifier<SettingsState> {
 
   bool get hasCompletedOnboarding =>
       state.selectedLanguage != null && state.selectedRegions.isNotEmpty;
+
+  Future<void> setOnboardingIntroCompleted(bool completed) async {
+    await repository.setOnboardingIntroCompleted(completed);
+    state = state.copyWith(onboardingIntroCompleted: completed);
+  }
 }

@@ -10,6 +10,8 @@ abstract class SettingsRepository {
   Future<void> setHdImages(bool enabled);
   Future<bool> isAutoplayEnabled();
   Future<bool> isHdImagesEnabled();
+  Future<bool> isOnboardingIntroCompleted();
+  Future<void> setOnboardingIntroCompleted(bool completed);
 
   Future<Set<String>> getSelectedRegions();
   Future<void> setSelectedRegions(Set<String> regions);
@@ -20,6 +22,7 @@ class SharedPrefsSettingsRepository implements SettingsRepository {
   static const _regionsKey = 'selected_regions';
   static const _autoplayKey = 'autoplay_enabled';
   static const _hdImagesKey = 'hd_images_enabled';
+  static const _onboardingIntroCompletedKey = 'onboarding_intro_completed';
 
   final SharedPreferences _prefs;
 
@@ -67,5 +70,15 @@ class SharedPrefsSettingsRepository implements SettingsRepository {
   @override
   Future<void> setHdImages(bool enabled) async {
     await _prefs.setBool(_hdImagesKey, enabled);
+  }
+
+  @override
+  Future<bool> isOnboardingIntroCompleted() async {
+    return _prefs.getBool(_onboardingIntroCompletedKey) ?? false;
+  }
+
+  @override
+  Future<void> setOnboardingIntroCompleted(bool completed) async {
+    await _prefs.setBool(_onboardingIntroCompletedKey, completed);
   }
 }

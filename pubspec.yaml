@@ -31,6 +31,7 @@ dependencies:
   flutter_svg: ^2.0.10
   uni_links: ^0.5.1
   intl: ^0.20.2
+  lottie: ^3.1.0
 
 flutter_launcher_icons:
   android: true
@@ -51,3 +52,5 @@ flutter:
     - lib/core/network/mock/responses/feed_mock.json
     - lib/core/network/mock/responses/notification_mock.json
     - assets/
+    - assets/animations/
+    - assets/images/
