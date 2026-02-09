@@ -1,1 +1,23 @@
-<svg width="16" height="16" viewBox="0 0 16 16" style="display: block;"><g><defs><clippath id="clip0_983_118"><rect width="16" height="16" fill="white"></rect></clippath></defs><g clip-path="url(#clip0_983_118)"><path d="M12 0C14.2091 1.28853e-07 16 1.79086 16 4V10C16 12.2091 14.2091 14 12 14H11.6182L11.8945 14.5527C12.1415 15.0467 11.9412 15.6475 11.4473 15.8945C10.9533 16.1415 10.3525 15.9412 10.1055 15.4473L9.38184 14H6.61816L5.89453 15.4473C5.64754 15.9412 5.04671 16.1415 4.55273 15.8945C4.05876 15.6475 3.85848 15.0467 4.10547 14.5527L4.38184 14H4C1.79086 14 0 12.2091 0 10V4C0 1.79086 1.79086 1.61064e-08 4 0H12ZM4 2C2.89543 2 2 2.89543 2 4V10C2 11.1046 2.89543 12 4 12H12C13.1046 12 14 11.1046 14 10V4C14 2.89543 13.1046 2 12 2H4ZM5.5 8C5.77614 8 6 8.22386 6 8.5V9.5C6 9.77614 5.77614 10 5.5 10H4.5C4.22386 10 4 9.77614 4 9.5V8.5C4 8.22386 4.22386 8 4.5 8H5.5ZM5.5 4C5.77614 4 6 4.22386 6 4.5V5.5C6 5.77614 5.77614 6 5.5 6H4.5C4.22386 6 4 5.77614 4 5.5V4.5C4 4.22386 4.22386 4 4.5 4H5.5ZM9.5 4C9.77614 4 10 4.22386 10 4.5V5.5C10 5.77614 9.77614 6 9.5 6H8.5C8.22386 6 8 5.77614 8 5.5V4.5C8 4.22386 8.22386 4 8.5 4H9.5Z" fill="#730FC3"></path></g></g></svg>
+<svg
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Background -->
+  <rect width="64" height="64" rx="12" fill="#D50000"/>
+
+  <!-- Globe -->
+  <circle cx="32" cy="24" r="12" stroke="white" stroke-width="2" fill="none"/>
+  <line x1="20" y1="24" x2="44" y2="24" stroke="white" stroke-width="1.5"/>
+  <line x1="32" y1="12" x2="32" y2="36" stroke="white" stroke-width="1.5"/>
+  <ellipse cx="32" cy="24" rx="6" ry="12" stroke="white" stroke-width="1.2" fill="none"/>
+
+  <!-- Skyline -->
+  <rect x="16" y="36" width="4" height="14" fill="white"/>
+  <rect x="22" y="32" width="5" height="18" fill="white"/>
+  <rect x="29" y="28" width="6" height="22" fill="white"/>
+  <rect x="37" y="34" width="5" height="16" fill="white"/>
+  <rect x="44" y="38" width="4" height="12" fill="white"/>
+
+</svg>
