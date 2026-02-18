@@ -1,6 +1,7 @@
+import 'package:bl_inshort/data/models/feeds/language_entity.dart';
+import 'package:bl_inshort/features/onboarding/presentation/region_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:bl_inshort/theme/app_colors.dart';
-import 'selected_language_screen.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   const LanguageSelectionScreen({super.key});
@@ -15,83 +16,112 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final colors = theme.colorScheme;
-
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 80),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFD50000), Color(0xFFB71C1C)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              /// 🔴 Main Content
+              Column(
+                children: [
+                  const SizedBox(height: 120),
 
-            /// ───── Title ─────
-            Text(
-              'Yalla News',
-              style: textTheme.headlineMedium?.copyWith(color: colors.primary),
-            ),
+                  /// Title
+                  const Text(
+                    "Yalla News",
+                    style: TextStyle(
+                      fontSize: 34,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
 
-            const SizedBox(height: 50),
+                  const SizedBox(height: 0),
 
-            /// ───── Language Cards ─────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _languageCard(
-                  context,
-                  label: 'English',
-                  iconText: 'NEWS',
-                  isSelected: selected == 'en',
-                  onTap: () {
-                    setState(() => selected = 'en');
-                    _goNext();
-                  },
-                ),
-                const SizedBox(width: 20),
-                _languageCard(
-                  context,
-                  label: 'العربية',
-                  iconText: 'أخبار',
-                  isSelected: selected == 'ar',
-                  onTap: () {
-                    setState(() => selected = 'ar');
-                    _goNext();
-                  },
-                ),
-              ],
-            ),
+                  /// Subtitle
+                  const Text(
+                    "news on the go",
+                    style: TextStyle(fontSize: 18,
+                    fontWeight: FontWeight.bold, color: Colors.white70),
+                  ),
 
-            const SizedBox(height: 20),
+                  const SizedBox(height: 80),
 
-            /// ───── Check Icons ─────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _checkIcon(selected == 'en'),
-                const SizedBox(width: 140),
-                _checkIcon(selected == 'ar'),
-              ],
-            ),
+                  /// Language Dropdown
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: selected,
+                          isExpanded: true,
+                          icon: const Icon(Icons.keyboard_arrow_down),
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontSize: 18,
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'en',
+                              child: Text('English'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'ar',
+                              child: Text('العربية'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              selected = value!;
+                            });
+                            _goNext();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
 
-            const Spacer(),
+                  const SizedBox(height: 15),
 
-            /// ───── Bottom Text ─────
-            Text(
-              'Choose Language',
-              style: textTheme.titleLarge?.copyWith(
-                color: AppColors.lightTextSecondary,
+                  const Text(
+                    "Select your language",
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+
+                  const Spacer(),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'اختر اللغة',
-              style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.lightTextSecondary,
-              ),
-            ),
 
-            const SizedBox(height: 40),
-          ],
+              /// 🏙️ Bottom Skyline Image
+              Positioned(
+                bottom: -20, // 👈 pull image down
+                left: 0,
+                right: 0,
+                child: Transform.scale(
+                  scale: 1.25, // 👈 increases skyline size
+                  alignment: Alignment.bottomCenter,
+                  child: Image.asset(
+                    'assets/images/skyline.png',
+                    width: double.infinity,
+                    fit: BoxFit.fitWidth,
+                  ),
+                ),
+              ),
+            
+            ],
+          ),
         ),
       ),
     );
@@ -168,7 +198,11 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SelectedLanguageScreen(language: selected),
+        builder: (_) => RegionSelectionScreen(language: LanguageEntity(
+                            id: selected == 'en' ? 1 : 2,
+                            name: selected== 'en' ? 'English' : 'العربية',
+                            code: selected,
+                          )),
       ),
     );
   }

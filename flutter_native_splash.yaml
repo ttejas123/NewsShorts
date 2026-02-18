@@ -3,6 +3,9 @@ flutter_native_splash:
   ios: true
   web: false
   image: assets/background.png
+  image_dark: assets/background.png
+  android_gravity: fill
+  ios_content_mode: scaleAspectFill
 
   fullscreen: true
 
