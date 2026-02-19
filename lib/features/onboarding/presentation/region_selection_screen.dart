@@ -1,12 +1,8 @@
-import 'package:bl_inshort/core/config/globles.dart';
 import 'package:bl_inshort/data/models/feeds/language_entity.dart';
-import 'package:bl_inshort/features/onboarding/presentation/language_localization.dart';
 import 'package:bl_inshort/features/onboarding/presentation/yalla_onboarding_shell.dart';
-import 'package:bl_inshort/features/settings/presentation/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import '../../settings/provider.dart';
 
 class Region {
@@ -47,25 +43,6 @@ class _RegionSelectionScreenState extends ConsumerState<RegionSelectionScreen> {
       showBack: true,
       onBack: () => Navigator.pop(context),
 
-      /// 👇 CENTER CONTENT
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: GridView.builder(
-          itemCount: regions.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 3.2,
-          ),
-          itemBuilder: (_, index) {
-            final region = regions[index];
-            final selected = _selectedRegions.contains(region.name);
-
-            return _buildRegionCard(region, selected);
-          },
-        ),
-      ),
 
       /// 👇 BOTTOM BUTTON
       bottom: SizedBox(
@@ -94,6 +71,27 @@ class _RegionSelectionScreenState extends ConsumerState<RegionSelectionScreen> {
           ),
         ),
       ),
+    
+            /// 👇 CENTER CONTENT
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: GridView.builder(
+          itemCount: regions.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 3.2,
+          ),
+          itemBuilder: (_, index) {
+            final region = regions[index];
+            final selected = _selectedRegions.contains(region.name);
+
+            return _buildRegionCard(region, selected);
+          },
+        ),
+      ),
+
     );
   }
 
@@ -129,16 +127,16 @@ class _RegionSelectionScreenState extends ConsumerState<RegionSelectionScreen> {
 
           /// 🔴 Red Icon Box
           Container(
-            width: 56,
-            height: 56,
-            padding: const EdgeInsets.all(10),
+            width: 40,
+            height: 40,
+            padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               color: const Color(0xFFD50000),
               borderRadius: BorderRadius.circular(14),
             ),
             child: SvgPicture.asset(
               region.svg,
-              fit: BoxFit.contain,
+              fit: BoxFit.cover,
               colorFilter: const ColorFilter.mode(
                 Colors.white,
                 BlendMode.srcIn,
@@ -153,7 +151,7 @@ class _RegionSelectionScreenState extends ConsumerState<RegionSelectionScreen> {
             child: Text(
               region.name,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
