@@ -99,8 +99,8 @@ class CategoryIcon extends StatelessWidget {
     super.key,
     required this.asset,
     this.size = 100,
-    this.backgroundColor = Colors.white60,
-    this.iconColor = Colors.black,
+    this.backgroundColor = Colors.transparent,
+    this.iconColor = Colors.white,
     this.borderRadius = 16,
   });
 
