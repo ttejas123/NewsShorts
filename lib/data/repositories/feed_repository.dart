@@ -9,8 +9,9 @@ class FeedRepository {
   Future<Map<String, dynamic>> fetchFeed({
     int? cursor,
     int limit = 20,
+    String lang = "en",
   }) async {
-    final response = await dio.get("/api/feed?cursor=$cursor&limit=$limit");
+    final response = await dio.get("/api/feed?cursor=$cursor&limit=$limit&lang=$lang");
     return {
       'entity': FeedResponseDto.toEntityFromJson(response.data),
       'count': response.data['count'],

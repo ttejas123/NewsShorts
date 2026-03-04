@@ -1,5 +1,6 @@
 import 'package:bl_inshort/core/logging/console.dart';
 import 'package:bl_inshort/data/repositories/feed_repository.dart';
+import 'package:bl_inshort/features/settings/provider.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_riverpod/misc.dart';
 
@@ -79,6 +80,7 @@ class FeedController extends StateNotifier<FeedState> {
       final response = await _repo.fetchFeed(
         cursor: null,
         limit: state.pageSize,
+        lang: _read(settingsControllerProvider).selectedLanguage?.code ?? "en",
       );
 
       state = state.copyWith(
@@ -102,6 +104,7 @@ class FeedController extends StateNotifier<FeedState> {
       final response = await _repo.fetchFeed(
         cursor: state.cursor,
         limit: state.pageSize,
+        lang: _read(settingsControllerProvider).selectedLanguage?.code ?? "en",
       );
 
       state = state.copyWith(
