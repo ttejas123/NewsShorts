@@ -7,7 +7,7 @@ class FeedRepository {
   FeedRepository(this.dio);
 
   Future<Map<String, dynamic>> fetchFeed({
-    String? cursor,
+    int? cursor,
     int limit = 20,
   }) async {
     final response = await dio.get("/api/feed?cursor=$cursor&limit=$limit");

@@ -99,7 +99,7 @@ class FeedDTO extends FactorySafeDto<FeedDTO> {
       html: json['html'],
       publishedAt: json['published_at'],
       isFeatured: json['is_featured'],
-      engagementScore: (json['engagement_score'] as num).toDouble(),
+      engagementScore: ((json['engagement_score'] ?? 0) as num).toDouble(),
       author: AuthorDto.prototype().decode(json['author']),
       layout: FeedLayoutType.fromString(json['layout']),
       source: SourceDto.prototype().decode(json['source']),

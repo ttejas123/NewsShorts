@@ -3,7 +3,7 @@ import 'package:bl_inshort/data/dto/feed/feed_dto.dart';
 import 'package:bl_inshort/data/models/feeds/feed_entity.dart';
 
 class FeedResponseDto extends FactorySafeDto<FeedResponseDto> {
-  final String? cursor;
+  final int? cursor;
   final bool hasMore;
   final int count;
   final List<FeedDTO> items;
@@ -25,7 +25,7 @@ class FeedResponseDto extends FactorySafeDto<FeedResponseDto> {
   }
 
   factory FeedResponseDto.prototype() {
-    return FeedResponseDto(cursor: "", hasMore: false, count: 0, items: []);
+    return FeedResponseDto(cursor: 0, hasMore: false, count: 0, items: []);
   }
 
   @override

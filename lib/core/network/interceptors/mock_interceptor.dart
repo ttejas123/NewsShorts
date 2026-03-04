@@ -10,12 +10,12 @@ class MockInterceptor extends Interceptor {
     // simulate network delay
     await Future.delayed(const Duration(milliseconds: 600));
 
-    if (options.path == "/api/feed?cursor=null&limit=20") {
-      final data = await loadFeedMockJson();
-      return handler.resolve(
-        Response(requestOptions: options, statusCode: 200, data: data),
-      );
-    }
+    // if (options.path == "/api/feed?cursor=null&limit=20") {
+    //   final data = await loadFeedMockJson();
+    //   return handler.resolve(
+    //     Response(requestOptions: options, statusCode: 200, data: data),
+    //   );
+    // }
 
     if (options.path == "/notification") {
       final data = await loadNotificationMockJson();

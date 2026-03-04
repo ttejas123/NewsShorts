@@ -13,7 +13,7 @@ class FeedState {
   final bool isInitialLoading;
   final bool isLoadingMore;
   final bool hasMore;
-  final String? cursor;
+  final int? cursor;
   final int pageSize;
   final int count;
   final Object? error;
@@ -45,7 +45,7 @@ class FeedState {
     bool? isInitialLoading,
     bool? isLoadingMore,
     bool? hasMore,
-    String? cursor,
+    int? cursor,
     int? pageSize,
     int? count,
     Object? error,
