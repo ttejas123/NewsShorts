@@ -61,7 +61,19 @@ class SettingsController extends StateNotifier<SettingsState> {
       repository.isHdImagesEnabled(),
       repository.getSelectedRegions(),
       repository.isOnboardingIntroCompleted(),
+      repository.getInterests(),
     ]);
+
+    final rawInterests = results[5] as Map<String, String>;
+    final interests = rawInterests.map((key, value) {
+      return MapEntry(
+        key,
+        InterestPreference.values.firstWhere(
+          (e) => e.name == value,
+          orElse: () => InterestPreference.neutral,
+        ),
+      );
+    });
 
     state = state.copyWith(
       selectedLanguage: results[0] as LanguageEntity?,
@@ -70,6 +82,7 @@ class SettingsController extends StateNotifier<SettingsState> {
       selectedRegions: results[3] as Set<String>,
       isInitialized: true,
       onboardingIntroCompleted: results[4] as bool,
+      interests: interests,
     );
   }
 
@@ -111,11 +124,14 @@ class SettingsController extends StateNotifier<SettingsState> {
   }
 
   // 🔹 Content Interest
-  void setInterest(String topic, InterestPreference preference) {
+  Future<void> setInterest(String topic, InterestPreference preference) async {
     final updated = Map<String, InterestPreference>.from(state.interests);
     updated[topic] = preference;
 
     state = state.copyWith(interests: updated);
+
+    final toPersist = updated.map((key, value) => MapEntry(key, value.name));
+    await repository.setInterests(toPersist);
   }
 
   bool isRegionSelected(String region) {

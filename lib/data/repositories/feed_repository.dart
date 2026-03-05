@@ -9,9 +9,13 @@ class FeedRepository {
   Future<Map<String, dynamic>> fetchFeed({
     int? cursor,
     int limit = 20,
-    String lang = "en",
+    List<String>? preferences,
   }) async {
-    final response = await dio.get("/api/feed?cursor=$cursor&limit=$limit&lang=$lang");
+    String url = "/api/feed?cursor=$cursor&limit=$limit";
+    if (preferences != null && preferences.isNotEmpty) {
+      url += "&pref=${preferences.join(',')}";
+    }
+    final response = await dio.get(url);
     return {
       'entity': FeedResponseDto.toEntityFromJson(response.data),
       'count': response.data['count'],

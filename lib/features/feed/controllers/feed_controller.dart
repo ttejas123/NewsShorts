@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/misc.dart';
 
 import 'package:bl_inshort/features/feed/providers.dart';
 import 'package:bl_inshort/data/models/feeds/feed_entity.dart';
+import 'package:bl_inshort/features/settings/controllers/settings_controller.dart';
+import 'package:bl_inshort/features/settings/provider.dart';
 
 typedef Reader = T Function<T>(ProviderListenable<T>);
 
@@ -77,10 +79,16 @@ class FeedController extends StateNotifier<FeedState> {
     state = state.copyWith(isInitialLoading: true, error: null);
 
     try {
+      final settingsState = _read(settingsControllerProvider);
+      final preferredTopics = settingsState.interests.entries
+          .where((e) => e.value == InterestPreference.interested)
+          .map((e) => e.key)
+          .toList();
+
       final response = await _repo.fetchFeed(
         cursor: null,
         limit: state.pageSize,
-        lang: _read(settingsControllerProvider).selectedLanguage?.code ?? "en",
+        preferences: preferredTopics,
       );
 
       state = state.copyWith(
@@ -101,10 +109,16 @@ class FeedController extends StateNotifier<FeedState> {
     state = state.copyWith(isLoadingMore: true, error: null);
 
     try {
+      final settingsState = _read(settingsControllerProvider);
+      final preferredTopics = settingsState.interests.entries
+          .where((e) => e.value == InterestPreference.interested)
+          .map((e) => e.key)
+          .toList();
+
       final response = await _repo.fetchFeed(
         cursor: state.cursor,
         limit: state.pageSize,
-        lang: _read(settingsControllerProvider).selectedLanguage?.code ?? "en",
+        preferences: preferredTopics,
       );
 
       state = state.copyWith(

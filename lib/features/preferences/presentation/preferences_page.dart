@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:bl_inshort/features/settings/provider.dart';
+import 'package:bl_inshort/features/settings/controllers/settings_controller.dart';
 
-class PreferencesPage extends StatelessWidget {
+class PreferencesPage extends ConsumerWidget {
   const PreferencesPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsState = ref.watch(settingsControllerProvider);
+    final interests = settingsState.interests;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Top Bar
+            // ... (Top Bar and Info Banner remain same)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () {
-                      context.pop(); // ✅ redirect to home
+                      context.pop();
                     },
                     child: const Icon(
                       Icons.arrow_back_ios_new,
@@ -30,11 +36,13 @@ class PreferencesPage extends StatelessWidget {
               ),
             ),
 
-            // 🔹 Info Banner
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF3A3300),
                   borderRadius: BorderRadius.circular(10),
@@ -64,7 +72,7 @@ class PreferencesPage extends StatelessWidget {
                         size: 14,
                         color: Colors.white,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -72,7 +80,6 @@ class PreferencesPage extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            // 🔹 Title + Description
             const Text(
               'Your Preferences',
               style: TextStyle(
@@ -99,7 +106,6 @@ class PreferencesPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // 🔹 Filter Tabs
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -115,18 +121,75 @@ class PreferencesPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // 🔹 List
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: const [
-                  _PreferenceTile(title: 'Automobile', icon: Icons.directions_car),
-                  _PreferenceTile(title: 'Business', icon: Icons.work),
-                  _PreferenceTile(title: 'Education', icon: Icons.school),
-                  _PreferenceTile(title: 'Entertainment', icon: Icons.music_note),
-                  _PreferenceTile(title: 'Fashion', icon: Icons.checkroom),
-                  _PreferenceTile(title: 'Hatke', icon: Icons.blur_on),
-                  _PreferenceTile(title: 'Miscellaneous', icon: Icons.category),
+                children: [
+                  _PreferenceTile(
+                    title: 'Automobile',
+                    icon: Icons.directions_car,
+                    preference:
+                        interests['Automobile'] ?? InterestPreference.neutral,
+                    onChanged: (pref) => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setInterest('Automobile', pref),
+                  ),
+                  _PreferenceTile(
+                    title: 'Business',
+                    icon: Icons.work,
+                    preference:
+                        interests['Business'] ?? InterestPreference.neutral,
+                    onChanged: (pref) => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setInterest('Business', pref),
+                  ),
+                  _PreferenceTile(
+                    title: 'Education',
+                    icon: Icons.school,
+                    preference:
+                        interests['Education'] ?? InterestPreference.neutral,
+                    onChanged: (pref) => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setInterest('Education', pref),
+                  ),
+                  _PreferenceTile(
+                    title: 'Entertainment',
+                    icon: Icons.music_note,
+                    preference:
+                        interests['Entertainment'] ??
+                        InterestPreference.neutral,
+                    onChanged: (pref) => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setInterest('Entertainment', pref),
+                  ),
+                  _PreferenceTile(
+                    title: 'Fashion',
+                    icon: Icons.checkroom,
+                    preference:
+                        interests['Fashion'] ?? InterestPreference.neutral,
+                    onChanged: (pref) => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setInterest('Fashion', pref),
+                  ),
+                  _PreferenceTile(
+                    title: 'Hatke',
+                    icon: Icons.blur_on,
+                    preference:
+                        interests['Hatke'] ?? InterestPreference.neutral,
+                    onChanged: (pref) => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setInterest('Hatke', pref),
+                  ),
+                  _PreferenceTile(
+                    title: 'Miscellaneous',
+                    icon: Icons.category,
+                    preference:
+                        interests['Miscellaneous'] ??
+                        InterestPreference.neutral,
+                    onChanged: (pref) => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setInterest('Miscellaneous', pref),
+                  ),
                 ],
               ),
             ),
@@ -136,7 +199,6 @@ class PreferencesPage extends StatelessWidget {
     );
   }
 }
-
 
 class _FilterChip extends StatelessWidget {
   final String title;
@@ -169,8 +231,15 @@ class _FilterChip extends StatelessWidget {
 class _PreferenceTile extends StatelessWidget {
   final String title;
   final IconData icon;
+  final InterestPreference preference;
+  final Function(InterestPreference) onChanged;
 
-  const _PreferenceTile({required this.title, required this.icon});
+  const _PreferenceTile({
+    required this.title,
+    required this.icon,
+    required this.preference,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -193,15 +262,38 @@ class _PreferenceTile extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 15),
             ),
           ),
-          const _ActionIcon(icon: Icons.thumb_up_alt_outlined),
+          _ActionIcon(
+            icon: preference == InterestPreference.interested
+                ? Icons.thumb_up_alt
+                : Icons.thumb_up_alt_outlined,
+            active: preference == InterestPreference.interested,
+            activeColor: Colors.green,
+            onTap: () {
+              onChanged(
+                preference == InterestPreference.interested
+                    ? InterestPreference.neutral
+                    : InterestPreference.interested,
+              );
+            },
+          ),
           const SizedBox(width: 10),
-          const _ActionIcon(icon: Icons.thumb_down_alt_outlined),
+          _ActionIcon(
+            icon: preference == InterestPreference.notInterested
+                ? Icons.thumb_down_alt
+                : Icons.thumb_down_alt_outlined,
+            active: preference == InterestPreference.notInterested,
+            activeColor: Colors.red,
+            onTap: () {
+              onChanged(
+                preference == InterestPreference.notInterested
+                    ? InterestPreference.neutral
+                    : InterestPreference.notInterested,
+              );
+            },
+          ),
         ],
       ),
     );
@@ -210,19 +302,39 @@ class _PreferenceTile extends StatelessWidget {
 
 class _ActionIcon extends StatelessWidget {
   final IconData icon;
+  final bool active;
+  final Color activeColor;
+  final VoidCallback onTap;
 
-  const _ActionIcon({required this.icon});
+  const _ActionIcon({
+    required this.icon,
+    this.active = false,
+    this.activeColor = const Color(0xFF4EA3FF),
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 34,
-      width: 34,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F1F),
-        borderRadius: BorderRadius.circular(17),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 34,
+        width: 34,
+        decoration: BoxDecoration(
+          color: active
+              ? activeColor.withOpacity(0.1)
+              : const Color(0xFF1F1F1F),
+          borderRadius: BorderRadius.circular(17),
+          border: active
+              ? Border.all(color: activeColor.withOpacity(0.5))
+              : null,
+        ),
+        child: Icon(
+          icon,
+          color: active ? activeColor : const Color(0xFF6F6F6F),
+          size: 16,
+        ),
       ),
-      child: Icon(icon, color: const Color(0xFF6F6F6F), size: 16),
     );
   }
 }
