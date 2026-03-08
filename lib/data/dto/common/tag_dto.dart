@@ -2,7 +2,7 @@ import 'package:bl_inshort/core/logging/factory_safe_dto_conversion.dart';
 import 'package:bl_inshort/data/models/feeds/tag_entity.dart';
 
 class TagDto extends FactorySafeDto<TagDto> {
-  final int id;
+  final String id;
   final String name;
 
   TagDto({required this.id, required this.name});
@@ -12,7 +12,7 @@ class TagDto extends FactorySafeDto<TagDto> {
   }
 
   factory TagDto.prototype() {
-    return TagDto(id: -1, name: "");
+    return TagDto(id: "", name: "");
   }
 
   @override

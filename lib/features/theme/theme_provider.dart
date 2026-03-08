@@ -11,7 +11,7 @@ enum AppThemeMode {
 class ThemeController extends ChangeNotifier {
   static const themeKey = 'app_theme_mode';
 
-  AppThemeMode _mode = AppThemeMode.system;
+  AppThemeMode _mode = AppThemeMode.light;
 
   AppThemeMode get mode => _mode;
 
@@ -24,7 +24,7 @@ class ThemeController extends ChangeNotifier {
 
     _mode = AppThemeMode.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => AppThemeMode.system,
+      orElse: () => AppThemeMode.light,
     );
 
     notifyListeners();
@@ -47,7 +47,7 @@ class ThemeController extends ChangeNotifier {
       case AppThemeMode.dark:
         return ThemeMode.dark;
       default:
-        return ThemeMode.system;
+        return ThemeMode.light;
     }
   }
 }

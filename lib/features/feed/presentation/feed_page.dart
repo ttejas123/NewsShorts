@@ -15,8 +15,11 @@ class FeedPage extends ConsumerStatefulWidget {
   ConsumerState<FeedPage> createState() => _FeedPageState();
 }
 
-class _FeedPageState extends ConsumerState<FeedPage> {
+class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -42,6 +45,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final adsRuntime = ref.watch(adsRuntimeProvider);
     final state = ref.watch(feedControllerProvider);
     final bottomNav = ref.read(bottomNavIndexProvider.notifier);

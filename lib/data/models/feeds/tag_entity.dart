@@ -1,7 +1,7 @@
 import 'package:bl_inshort/data/dto/common/tag_dto.dart';
 
 class TagEntity {
-  final int id;
+  final String id;
   final String name;
 
   TagEntity({

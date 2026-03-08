@@ -19,7 +19,8 @@ class SourceView extends ConsumerWidget {
         top: true,
         bottom: false,
         child: AdvancedWebView(
-          initialUrl: currentFeedItem.source.website,
+          key: ValueKey(currentFeedItem.id),
+          initialUrl: currentFeedItem.webUrl,
           showAppBar: false,
         ),
       ),
