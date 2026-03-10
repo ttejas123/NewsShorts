@@ -63,6 +63,7 @@ class FeedDTO extends FactorySafeDto<FeedDTO> {
   final StatusDto status;
   final FeedLayoutType layout;
   final List<ResourceDto> resources;
+  final FeedInteractionsDto interactions;
 
   FeedDTO({
     required this.id,
@@ -85,6 +86,7 @@ class FeedDTO extends FactorySafeDto<FeedDTO> {
     required this.layout,
     required this.webUrl,
     required this.html,
+    required this.interactions,
   });
 
   factory FeedDTO.fromJson(Map<String, dynamic> json) {
@@ -113,6 +115,7 @@ class FeedDTO extends FactorySafeDto<FeedDTO> {
       resources: (json['resources'] as List)
           .map((e) => ResourceDto.prototype().decode(e))
           .toList(),
+      interactions: FeedInteractionsDto.fromJson(json['interactions']),
     );
   }
 
@@ -143,6 +146,7 @@ class FeedDTO extends FactorySafeDto<FeedDTO> {
       'status': status.toJson(),
       'layout': layout.name,
       'resources': resources.map((e) => e.toJson()).toList(),
+      'interactions': interactions.toJson(),
     };
   }
 
@@ -168,6 +172,71 @@ class FeedDTO extends FactorySafeDto<FeedDTO> {
       region: region.toEntity(),
       status: status.toEntity(),
       resources: resources.map((e) => e.toEntity()).toList(),
+      interactions: interactions.toEntity(),
+    );
+  }
+}
+
+class FeedInteractionsDto {
+  final InteractionItemDto like;
+  final InteractionItemDto share;
+  final InteractionItemDto saved;
+
+  FeedInteractionsDto({
+    required this.like,
+    required this.share,
+    required this.saved,
+  });
+
+  factory FeedInteractionsDto.fromJson(Map<String, dynamic> json) {
+    return FeedInteractionsDto(
+      like: InteractionItemDto.fromJson(json['like']),
+      share: InteractionItemDto.fromJson(json['share']),
+      saved: InteractionItemDto.fromJson(json['saved']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'like': like.toJson(),
+      'share': share.toJson(),
+      'saved': saved.toJson(),
+    };
+  }
+
+  FeedInteractionsEntity toEntity() {
+    return FeedInteractionsEntity(
+      like: like.toEntity(),
+      share: share.toEntity(),
+      saved: saved.toEntity(),
+    );
+  }
+}
+
+class InteractionItemDto {
+  final bool status;
+  final String? timestamp;
+
+  InteractionItemDto({required this.status, this.timestamp});
+
+  factory InteractionItemDto.fromJson(Map<String, dynamic> json) {
+    return InteractionItemDto(
+      status: json['status'] ?? false,
+      timestamp: json['timestamp'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status,
+      'timestamp': timestamp,
+    };
+  }
+
+  InteractionItemEntity toEntity() {
+    return InteractionItemEntity(
+      status: status,
+      timestamp: timestamp != null ? DateTime.tryParse(timestamp!) : null,
     );
   }
 }

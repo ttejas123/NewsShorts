@@ -68,8 +68,44 @@ class _StackedCardFeedState extends State<StackedCardFeed> {
             ),
 
             /// 🔹 VISUAL STACK (INPUT PASSTHROUGH)
-            IgnorePointer(
-              ignoring: true,
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+
+              onVerticalDragStart: (details) {
+                var _dragStartOffset = widget.controller.offset;
+              },
+
+              onVerticalDragUpdate: (details) {
+                final newOffset = widget.controller.offset - details.delta.dy;
+
+                if (newOffset >= 0 &&
+                    newOffset <= widget.controller.position.maxScrollExtent) {
+                  widget.controller.jumpTo(newOffset);
+                }
+              },
+
+              onVerticalDragEnd: (details) {
+                final velocity = details.primaryVelocity ?? 0;
+                final offset = widget.controller.offset;
+
+                int targetIndex = (offset / _cardHeight).round();
+
+                /// If user flicks → respect velocity
+                if (velocity < -200) {
+                  targetIndex += 1;
+                } else if (velocity > 200) {
+                  targetIndex -= 1;
+                }
+
+                targetIndex = targetIndex.clamp(0, widget.itemCount - 1);
+
+                widget.controller.animateTo(
+                  targetIndex * _cardHeight,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
+                );
+              },
+
               child: Stack(
                 children: [
                   /// NEXT CARD — FIXED BEHIND

@@ -34,6 +34,7 @@ class FeedEntity {
   final double engagementScore;
 
   final List<ResourceEntity> resources;
+  final FeedInteractionsEntity interactions;
 
   FeedEntity({
     required this.id,
@@ -56,6 +57,7 @@ class FeedEntity {
     required this.layout,
     required this.webUrl,
     required this.html,
+    required this.interactions,
   });
 
   factory FeedEntity.fromDto(FeedDTO dto) {
@@ -81,6 +83,41 @@ class FeedEntity {
       status: StatusEntity.fromDto(dto.status),
       resources: dto.resources.map(ResourceEntity.fromDto).toList(),
       layout: dto.layout,
+      interactions: FeedInteractionsEntity.fromDto(dto.interactions),
+    );
+  }
+}
+
+class FeedInteractionsEntity {
+  final InteractionItemEntity like;
+  final InteractionItemEntity share;
+  final InteractionItemEntity saved;
+
+  FeedInteractionsEntity({
+    required this.like,
+    required this.share,
+    required this.saved,
+  });
+
+  factory FeedInteractionsEntity.fromDto(FeedInteractionsDto dto) {
+    return FeedInteractionsEntity(
+      like: InteractionItemEntity.fromDto(dto.like),
+      share: InteractionItemEntity.fromDto(dto.share),
+      saved: InteractionItemEntity.fromDto(dto.saved),
+    );
+  }
+}
+
+class InteractionItemEntity {
+  final bool status;
+  final DateTime? timestamp;
+
+  InteractionItemEntity({required this.status, this.timestamp});
+
+  factory InteractionItemEntity.fromDto(InteractionItemDto dto) {
+    return InteractionItemEntity(
+      status: dto.status,
+      timestamp: dto.timestamp != null ? DateTime.tryParse(dto.timestamp!) : null,
     );
   }
 }

@@ -1,11 +1,14 @@
 import 'dart:ui';
+// import 'package:bl_inshort/core/config/globles.dart';
 import 'package:bl_inshort/data/dto/feed/feed_dto.dart';
 import 'package:bl_inshort/data/models/feeds/feed_entity.dart';
 import 'package:bl_inshort/data/models/feeds/resource_entity.dart';
 import 'package:bl_inshort/features/feed/presentation/widgets/story_feed_card.dart';
+import 'package:bl_inshort/features/feed/providers.dart';
 import 'package:bl_inshort/features/webview/presentation/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 class FeedCard extends StatelessWidget {
@@ -795,7 +798,7 @@ class _BottomInfoStrip extends StatelessWidget {
             const SizedBox(height: 12),
           ],
 
-          const SizedBox(height: 50),
+          const SizedBox(height: 10),
 
           /// Divider + time + share (ALL INSIDE STACK)
           SizedBox(
@@ -910,7 +913,7 @@ void _shareLink(BuildContext context, String url, String subject) {
   );
 }
 
-class StandardVisualCard extends StatelessWidget {
+class StandardVisualCard extends ConsumerWidget {
   final FeedEntity item;
   final int count;
   final int index;
@@ -923,7 +926,7 @@ class StandardVisualCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
@@ -933,6 +936,19 @@ class StandardVisualCard extends StatelessWidget {
     const double contentHeight = 400;
     const double floatingOffset = -10;
 
+    final repo = ref.read(feedRepositoryProvider);
+    final shareCallback = () async {
+      await repo.toggleUserAction(feedId: item.id, actionType: 'share');
+      if (context.mounted) {
+        _shareLink(context, "blinshort://feed/${item.id}", item.title);
+      }
+    };
+    final onLike = () async {
+      await repo.toggleUserAction(feedId: item.id, actionType: 'like');
+    };
+    final onSave = () async {
+      await repo.toggleUserAction(feedId: item.id, actionType: 'save');
+    };
     return Container(
       height: 560,
       color: colors.surface,
@@ -1031,11 +1047,11 @@ class StandardVisualCard extends StatelessWidget {
                   right: 16,
                   bottom: contentHeight - floatingOffset,
                   child: _FloatingActionRow(
-                    shareLink: () => _shareLink(
-                      context,
-                      "blinshort://feed/${item.id}",
-                      item.title,
-                    ),
+                    onLike: onLike,
+                    onSave: onSave,
+                    shareLink: shareCallback,
+                    isLiked: item.interactions.like.status,
+                    isSaved: item.interactions.saved.status,
                   ),
                 ),
               ],
@@ -1048,9 +1064,7 @@ class StandardVisualCard extends StatelessWidget {
           _BottomInfoStrip(
             numberRemaining: count - (index + 1),
             item: item,
-            shareLink: () {
-              _shareLink(context, "blinshort://feed/${item.id}", item.title);
-            },
+            shareLink: shareCallback,
           ),
 
           const SizedBox(height: 14),
@@ -1064,10 +1078,108 @@ class StandardVisualCard extends StatelessWidget {
 /// FLOATING ROW
 /// ─────────────────────────────────────────────
 
-class _FloatingActionRow extends StatelessWidget {
-  const _FloatingActionRow({required this.shareLink});
+class _FloatingActionRow extends StatefulWidget {
+  final Future<void> Function() onLike;
+  final Future<void> Function() onSave;
+  final Future<void> Function() shareLink;
+  final bool isLiked;
+  final bool isSaved;
 
-  final VoidCallback shareLink;
+  const _FloatingActionRow({
+    required this.onLike,
+    required this.onSave,
+    required this.shareLink,
+    required this.isLiked,
+    required this.isSaved,
+  });
+
+  @override
+  State<_FloatingActionRow> createState() => _FloatingActionRowState();
+}
+
+class _FloatingActionRowState extends State<_FloatingActionRow> {
+  bool _isLiked = false;
+  bool _isSaved = false;
+  double _likeScale = 1.0;
+  double _saveScale = 1.0;
+  double _shareTurns = 0.0;
+  bool _isLoadingLike = false;
+  bool _isLoadingSave = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLiked = widget.isLiked;
+    _isSaved = widget.isSaved;
+  }
+
+  @override
+  void didUpdateWidget(_FloatingActionRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isLiked != widget.isLiked) {
+      _isLiked = widget.isLiked;
+    }
+    if (oldWidget.isSaved != widget.isSaved) {
+      _isSaved = widget.isSaved;
+    }
+  }
+
+  Future<void> _handleLike() async {
+    if (_isLoadingLike) return;
+
+    setState(() {
+      _likeScale = 1.3;
+      _isLoadingLike = true;
+    });
+
+    try {
+      await widget.onLike();
+      if (mounted) {
+        setState(() {
+          _isLiked = !_isLiked;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _likeScale = 1.0;
+          _isLoadingLike = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleSave() async {
+    if (_isLoadingSave) return;
+
+    setState(() {
+      _saveScale = 1.3;
+      _isLoadingSave = true;
+    });
+
+    try {
+      await widget.onSave();
+      if (mounted) {
+        setState(() {
+          _isSaved = !_isSaved;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _saveScale = 1.0;
+          _isLoadingSave = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleShare() async {
+    setState(() {
+      _shareTurns += 1.0;
+    });
+    await widget.shareLink();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1097,18 +1209,66 @@ class _FloatingActionRow extends StatelessWidget {
         _GlassPill(
           child: Row(
             children: [
-              Icon(
-                Icons.bookmark_border,
-                color: colors.onSurfaceVariant,
-                size: 16,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _handleLike,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 0,
+                  ),
+                  child: AnimatedScale(
+                    scale: _likeScale,
+                    duration: const Duration(milliseconds: 150),
+                    curve: Curves.easeInOut,
+                    child: Icon(
+                      _isLiked ? Icons.favorite : Icons.favorite_border,
+                      color: _isLiked ? Colors.red : colors.onSurfaceVariant,
+                      size: 16,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(width: 14),
-              InkWell(
-                onTap: shareLink,
-                child: Icon(
-                  Icons.share,
-                  color: colors.onSurfaceVariant,
-                  size: 16,
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _handleSave,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 0,
+                  ),
+                  child: AnimatedScale(
+                    scale: _saveScale,
+                    duration: const Duration(milliseconds: 150),
+                    curve: Curves.easeInOut,
+                    child: Icon(
+                      _isSaved ? Icons.bookmark : Icons.bookmark_border,
+                      color: _isSaved ? Colors.yellow : colors.onSurfaceVariant,
+                      size: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _handleShare,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 0,
+                  ),
+                  child: AnimatedRotation(
+                    turns: _shareTurns,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Icon(
+                      Icons.share,
+                      color: colors.onSurfaceVariant,
+                      size: 16,
+                    ),
+                  ),
                 ),
               ),
             ],

@@ -19,4 +19,17 @@ class FeedRepository {
       'hasMore': response.data['has_more'],
     };
   }
+
+  Future<void> toggleUserAction({
+    required String feedId,
+    required String actionType,
+  }) async {
+    await dio.post(
+      '/api/user-actions/toggle',
+      data: {
+        'feed_id': feedId,
+        'action_type': actionType,
+      },
+    );
+  }
 }
