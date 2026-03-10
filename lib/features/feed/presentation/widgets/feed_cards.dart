@@ -765,7 +765,9 @@ class _BottomInfoStrip extends StatelessWidget {
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
     final bool showRemaining =
-        numberRemaining > 0 && numberRemaining <= 10 && (numberRemaining % 5 == 0 || numberRemaining <= 2);
+        numberRemaining > 0 &&
+        numberRemaining <= 10 &&
+        (numberRemaining % 5 == 0 || numberRemaining <= 2);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
@@ -775,10 +777,7 @@ class _BottomInfoStrip extends StatelessWidget {
           /// 🔵 Blue pill
           if (showRemaining) ...[
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.blue.withOpacity(0.85),
                 borderRadius: BorderRadius.circular(20),
@@ -1190,6 +1189,49 @@ class _BottomCTA extends StatelessWidget {
           'Tap to know more',
           style: textTheme.titleSmall?.copyWith(height: 1.4),
         ),
+      ),
+    );
+  }
+}
+
+class AdFeedCard extends StatelessWidget {
+  final Widget ad;
+
+  const AdFeedCard({required this.ad});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      height: 560,
+      color: colors.surface,
+      child: Column(
+        children: [
+          Expanded(
+            child: Stack(
+              children: [
+                Positioned.fill(child: ad),
+
+                Positioned(
+                  left: 16,
+                  top: 16,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      "Sponsored",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

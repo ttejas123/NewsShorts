@@ -1,8 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:bl_inshort/data/models/feeds/feed_entity.dart';
 import 'package:flutter/widgets.dart';
 import 'package:bl_inshort/core/ads/ads_runtime.dart';
-import 'package:bl_inshort/core/ads/presentation/ad_fallback_widget.dart';
-import 'package:bl_inshort/core/ads/presentation/ad_card_shell.dart';
+import 'package:bl_inshort/features/feed/presentation/widgets/ad_feed_card.dart';
 
 class AdSlotWidget extends StatefulWidget {
   final FeedEntity meta;
@@ -22,21 +22,28 @@ class AdSlotWidget extends StatefulWidget {
 
 class _AdSlotWidgetState extends State<AdSlotWidget> {
   bool _failed = false;
+  bool _loaded = false;
 
   @override
   Widget build(BuildContext context) {
     if (_failed) {
-      return AdFallbackWidget(fallback: widget.fallback);
+      return widget.fallback;
     }
 
     final provider = widget.runtime.resolveProvider(widget.meta);
 
-    return AdCardShell(
-      child: provider.buildAd(
+    return AdFeedCard(
+      ad: provider.buildAd(
         meta: widget.meta,
-        onLoaded: () {},
+        onLoaded: () {
+          setState(() {
+            _loaded = true;
+          });
+        },
         onFailed: () {
-          setState(() => _failed = true);
+          setState(() {
+            _failed = true;
+          });
         },
       ),
     );

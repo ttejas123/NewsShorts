@@ -57,7 +57,10 @@ class _GoogleNativeAdWidgetState extends State<_GoogleNativeAdWidget> {
       return SizedBox(height: height);
     }
 
-    return SizedBox(height: height, child: AdWidget(ad: _nativeAd!));
+    // return SizedBox(height: height, child: AdWidget(ad: _nativeAd!));
+    return SizedBox.expand(
+      child: AdWidget(ad: _nativeAd!),
+    );
   }
 }
 
