@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:bl_inshort/features/settings/provider.dart'; // Add this import
 import 'package:shared_preferences/shared_preferences.dart'; // Add this import
+import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
   // Preserve splash IMMEDIATELY
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);

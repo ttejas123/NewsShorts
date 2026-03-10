@@ -6,6 +6,7 @@ import 'package:bl_inshort/features/shell/navigation_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bl_inshort/features/feed/providers.dart';
+import 'package:bl_inshort/core/analytics/analytics_client.dart';
 import 'widgets/stacked_card_feed.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
@@ -27,6 +28,7 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
     // Load initial batch
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(feedControllerProvider.notifier).loadInitial();
+      ref.read(analyticsClientProvider).logScreenView(screenName: 'FeedPage');
 
       // 🔥 restore position
       final index = ref.read(currentFeedIndexProvider);
@@ -49,6 +51,13 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
     final adsRuntime = ref.watch(adsRuntimeProvider);
     final state = ref.watch(feedControllerProvider);
     final bottomNav = ref.read(bottomNavIndexProvider.notifier);
+
+    // ✅ Log screen view when THIS tab becomes active
+    ref.listen<int>(bottomNavIndexProvider, (previous, next) {
+      if (next == 1) {
+        ref.read(analyticsClientProvider).logScreenView(screenName: 'FeedPage');
+      }
+    });
 
     if (state.isInitialLoading && state.items.isEmpty) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
