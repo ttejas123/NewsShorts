@@ -15,6 +15,9 @@ abstract class SettingsRepository {
 
   Future<Set<String>> getSelectedRegions();
   Future<void> setSelectedRegions(Set<String> regions);
+
+  Future<String?> getSysUid();
+  Future<void> setSysUid(String sysuid);
 }
 
 class SharedPrefsSettingsRepository implements SettingsRepository {
@@ -23,6 +26,7 @@ class SharedPrefsSettingsRepository implements SettingsRepository {
   static const _autoplayKey = 'autoplay_enabled';
   static const _hdImagesKey = 'hd_images_enabled';
   static const _onboardingIntroCompletedKey = 'onboarding_intro_completed';
+  static const _sysuidKey = 'sysuid';
 
   final SharedPreferences _prefs;
 
@@ -80,5 +84,15 @@ class SharedPrefsSettingsRepository implements SettingsRepository {
   @override
   Future<void> setOnboardingIntroCompleted(bool completed) async {
     await _prefs.setBool(_onboardingIntroCompletedKey, completed);
+  }
+
+  @override
+  Future<String?> getSysUid() async {
+    return _prefs.getString(_sysuidKey);
+  }
+
+  @override
+  Future<void> setSysUid(String sysuid) async {
+    await _prefs.setString(_sysuidKey, sysuid);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:bl_inshort/data/models/feeds/language_entity.dart';
 import 'package:bl_inshort/data/repositories/settings_repository.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:uuid/uuid.dart';
 
 enum InterestPreference { interested, notInterested, neutral }
 
@@ -10,7 +11,8 @@ class SettingsState {
   final bool autoplayEnabled;
   final bool hdImagesEnabled;
   final Map<String, InterestPreference> interests;
-  final bool isInitialized; // ✅ NEW
+  final bool isInitialized;
+  final String? sysuid;
 
   /// NEW
   final Set<String> selectedRegions;
@@ -23,6 +25,7 @@ class SettingsState {
     this.selectedRegions = const {},
     this.isInitialized = false,
     this.onboardingIntroCompleted = false,
+    this.sysuid,
   });
 
   SettingsState copyWith({
@@ -33,6 +36,7 @@ class SettingsState {
     Set<String>? selectedRegions,
     bool? isInitialized,
     bool? onboardingIntroCompleted,
+    String? sysuid,
   }) {
     return SettingsState(
       selectedLanguage: selectedLanguage ?? this.selectedLanguage,
@@ -43,6 +47,7 @@ class SettingsState {
       isInitialized: isInitialized ?? this.isInitialized,
       onboardingIntroCompleted:
           onboardingIntroCompleted ?? this.onboardingIntroCompleted,
+      sysuid: sysuid ?? this.sysuid,
     );
   }
 }
@@ -61,7 +66,14 @@ class SettingsController extends StateNotifier<SettingsState> {
       repository.isHdImagesEnabled(),
       repository.getSelectedRegions(),
       repository.isOnboardingIntroCompleted(),
+      repository.getSysUid(),
     ]);
+
+    String? sysuid = results[5] as String?;
+    if (sysuid == null) {
+      sysuid = const Uuid().v4();
+      await repository.setSysUid(sysuid);
+    }
 
     state = state.copyWith(
       selectedLanguage: results[0] as LanguageEntity?,
@@ -70,6 +82,7 @@ class SettingsController extends StateNotifier<SettingsState> {
       selectedRegions: results[3] as Set<String>,
       isInitialized: true,
       onboardingIntroCompleted: results[4] as bool,
+      sysuid: sysuid,
     );
   }
 
