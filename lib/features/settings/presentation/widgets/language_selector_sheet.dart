@@ -7,7 +7,6 @@ class LanguageSelectorSheet extends ConsumerWidget {
   const LanguageSelectorSheet({super.key});
   static final _languages = [
     LanguageEntity(id: 1, code: 'en', name: 'English'),
-    LanguageEntity(id: 1, code: 'hi', name: 'हिन्दी'),
     LanguageEntity(id: 1, code: 'ar', name: 'العربية'),
   ];
 
