@@ -54,3 +54,22 @@ class AdMeta {
 
   const AdMeta({required this.slotId, required this.provider, this.config});
 }
+
+enum AdFormat {
+  native,
+  banner,
+  interstitial;
+
+  factory AdFormat.fromString(String name) {
+    switch (name) {
+      case 'native':
+        return native;
+      case 'banner':
+        return banner;
+      case 'interstitial':
+        return interstitial;
+      default:
+        return native;
+    }
+  }
+}

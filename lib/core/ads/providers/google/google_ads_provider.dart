@@ -5,6 +5,68 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../ads_types.dart';
 import '../ad_provider.dart';
 
+class _GoogleBannerAdWidget extends StatefulWidget {
+  final String adUnitId;
+  final VoidCallback onLoaded;
+  final VoidCallback onFailed;
+
+  const _GoogleBannerAdWidget({
+    required this.adUnitId,
+    required this.onLoaded,
+    required this.onFailed,
+  });
+
+  @override
+  State<_GoogleBannerAdWidget> createState() => _GoogleBannerAdWidgetState();
+}
+
+class _GoogleBannerAdWidgetState extends State<_GoogleBannerAdWidget> {
+  BannerAd? _bannerAd;
+  bool _isLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bannerAd = BannerAd(
+      adUnitId: widget.adUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          if (!mounted) return;
+
+          setState(() => _isLoaded = true);
+          widget.onLoaded();
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          widget.onFailed();
+        },
+      ),
+    );
+
+    _bannerAd!.load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isLoaded) return const SizedBox(height: 50);
+
+    return SizedBox(
+      height: 50,
+      width: double.infinity,
+      child: AdWidget(ad: _bannerAd!),
+    );
+  }
+}
+
 class _GoogleNativeAdWidgetState extends State<_GoogleNativeAdWidget> {
   NativeAd? _nativeAd;
   bool _isLoaded = false;
