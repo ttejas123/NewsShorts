@@ -7,12 +7,16 @@ class ItemTypeProviderDto extends FactorySafeDto<ItemTypeProviderDto> {
   final ItemType type;
   final String subType;
   final String id;
+  final String? imageUrl;
+  final String? redirectUrl;
 
   ItemTypeProviderDto({
     required this.name,
     required this.type,
     required this.subType,
     required this.id,
+    this.imageUrl,
+    this.redirectUrl,
   });
 
   ItemTypeProviderDto fromJson(Map<String, dynamic> json) {
@@ -21,6 +25,8 @@ class ItemTypeProviderDto extends FactorySafeDto<ItemTypeProviderDto> {
       subType: json['subType'],
       type: ItemType.fromString(json['type']),
       id: json['id'],
+      imageUrl: json['imageUrl'] as String?,
+      redirectUrl: json['redirectUrl'] as String?,
     );
   }
 
@@ -34,7 +40,14 @@ class ItemTypeProviderDto extends FactorySafeDto<ItemTypeProviderDto> {
   }
 
   Map<String, dynamic> toJson() {
-    return {'name': name, 'type': type.name, 'subType': subType, 'id': id};
+    return {
+      'name': name,
+      'type': type.name,
+      'subType': subType,
+      'id': id,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      if (redirectUrl != null) 'redirectUrl': redirectUrl,
+    };
   }
 
   ItemTypeProviderDto copyWith({
@@ -42,18 +55,22 @@ class ItemTypeProviderDto extends FactorySafeDto<ItemTypeProviderDto> {
     ItemType? type,
     String? subType,
     String? id,
+    String? imageUrl,
+    String? redirectUrl,
   }) {
     return ItemTypeProviderDto(
       name: name ?? this.name,
       type: type ?? this.type,
       subType: subType ?? this.subType,
       id: id ?? this.id,
+      imageUrl: imageUrl ?? this.imageUrl,
+      redirectUrl: redirectUrl ?? this.redirectUrl,
     );
   }
 
   @override
   String toString() {
-    return 'ItemTypeProviderDto{name: $name, type: $type, subType: $subType, id: $id}';
+    return 'ItemTypeProviderDto{name: $name, type: $type, subType: $subType, id: $id, imageUrl: $imageUrl, redirectUrl: $redirectUrl}';
   }
 
   @override
@@ -64,15 +81,29 @@ class ItemTypeProviderDto extends FactorySafeDto<ItemTypeProviderDto> {
         other.name == name &&
         other.type == type &&
         other.subType == subType &&
-        other.id == id;
+        other.id == id &&
+        other.imageUrl == imageUrl &&
+        other.redirectUrl == redirectUrl;
   }
 
   @override
   int get hashCode {
-    return name.hashCode ^ type.hashCode ^ subType.hashCode ^ id.hashCode;
+    return name.hashCode ^
+        type.hashCode ^
+        subType.hashCode ^
+        id.hashCode ^
+        imageUrl.hashCode ^
+        redirectUrl.hashCode;
   }
 
   ItemTypeProvider toEntity() {
-    return ItemTypeProvider(name: name, type: type, id: id, subType: subType);
+    return ItemTypeProvider(
+      name: name,
+      type: type,
+      id: id,
+      subType: subType,
+      imageUrl: imageUrl,
+      redirectUrl: redirectUrl,
+    );
   }
 }

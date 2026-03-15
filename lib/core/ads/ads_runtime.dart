@@ -23,7 +23,7 @@ class AdsRuntime {
 
   AdProvider resolveProvider(FeedEntity meta) {
     return _registry.getProvider(
-      AdProviderType.fromString(meta.provider.subType),
+      AdProviderType.fromString(meta.provider.name),
     );
   }
 }
