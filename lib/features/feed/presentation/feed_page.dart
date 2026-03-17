@@ -94,6 +94,16 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
                 ref.read(currentFeedIndexProvider.notifier).state = index;
 
                 final total = state.items.length;
+
+                // 🔥 Trigger 'view' interaction
+                if (index < total) {
+                  final item = state.items[index];
+                  ref.read(feedControllerProvider.notifier).toggleUserAction(
+                    feedId: item.id,
+                    actionType: 'view',
+                  );
+                }
+
                 if (index >= total - 3 &&
                     state.hasMore &&
                     !state.isLoadingMore) {

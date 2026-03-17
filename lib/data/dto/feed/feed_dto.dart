@@ -181,11 +181,13 @@ class FeedInteractionsDto {
   final InteractionItemDto like;
   final InteractionItemDto share;
   final InteractionItemDto saved;
+  final InteractionItemDto view;
 
   FeedInteractionsDto({
     required this.like,
     required this.share,
     required this.saved,
+    required this.view,
   });
 
   factory FeedInteractionsDto.fromJson(Map<String, dynamic> json) {
@@ -193,6 +195,7 @@ class FeedInteractionsDto {
       like: InteractionItemDto.fromJson(json['like']),
       share: InteractionItemDto.fromJson(json['share']),
       saved: InteractionItemDto.fromJson(json['saved']),
+      view: InteractionItemDto.fromJson(json['view'] ?? {'status': false}),
     );
   }
 
@@ -201,6 +204,7 @@ class FeedInteractionsDto {
       'like': like.toJson(),
       'share': share.toJson(),
       'saved': saved.toJson(),
+      'view': view.toJson(),
     };
   }
 
@@ -209,6 +213,7 @@ class FeedInteractionsDto {
       like: like.toEntity(),
       share: share.toEntity(),
       saved: saved.toEntity(),
+      view: view.toEntity(),
     );
   }
 }

@@ -140,11 +140,13 @@ class FeedInteractionsEntity {
   final InteractionItemEntity like;
   final InteractionItemEntity share;
   final InteractionItemEntity saved;
+  final InteractionItemEntity view;
 
   FeedInteractionsEntity({
     required this.like,
     required this.share,
     required this.saved,
+    required this.view,
   });
 
   factory FeedInteractionsEntity.fromDto(FeedInteractionsDto dto) {
@@ -152,6 +154,7 @@ class FeedInteractionsEntity {
       like: InteractionItemEntity.fromDto(dto.like),
       share: InteractionItemEntity.fromDto(dto.share),
       saved: InteractionItemEntity.fromDto(dto.saved),
+      view: InteractionItemEntity.fromDto(dto.view),
     );
   }
 
@@ -159,11 +162,13 @@ class FeedInteractionsEntity {
     InteractionItemEntity? like,
     InteractionItemEntity? share,
     InteractionItemEntity? saved,
+    InteractionItemEntity? view,
   }) {
     return FeedInteractionsEntity(
       like: like ?? this.like,
       share: share ?? this.share,
       saved: saved ?? this.saved,
+      view: view ?? this.view,
     );
   }
 }
