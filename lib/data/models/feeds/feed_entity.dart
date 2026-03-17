@@ -86,6 +86,54 @@ class FeedEntity {
       interactions: FeedInteractionsEntity.fromDto(dto.interactions),
     );
   }
+
+  FeedEntity copyWith({
+    String? id,
+    String? title,
+    String? subtitle,
+    String? description,
+    DateTime? publishedAt,
+    String? slug,
+    String? webUrl,
+    String? html,
+    ItemTypeProvider? provider,
+    AuthorEntity? author,
+    SourceEntity? source,
+    CategoryEntity? category,
+    List<TagEntity>? tags,
+    LanguageEntity? language,
+    RegionEntity? region,
+    FeedLayoutType? layout,
+    StatusEntity? status,
+    bool? isFeatured,
+    double? engagementScore,
+    List<ResourceEntity>? resources,
+    FeedInteractionsEntity? interactions,
+  }) {
+    return FeedEntity(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      description: description ?? this.description,
+      publishedAt: publishedAt ?? this.publishedAt,
+      slug: slug ?? this.slug,
+      webUrl: webUrl ?? this.webUrl,
+      html: html ?? this.html,
+      provider: provider ?? this.provider,
+      author: author ?? this.author,
+      source: source ?? this.source,
+      category: category ?? this.category,
+      tags: tags ?? this.tags,
+      language: language ?? this.language,
+      region: region ?? this.region,
+      layout: layout ?? this.layout,
+      status: status ?? this.status,
+      isFeatured: isFeatured ?? this.isFeatured,
+      engagementScore: engagementScore ?? this.engagementScore,
+      resources: resources ?? this.resources,
+      interactions: interactions ?? this.interactions,
+    );
+  }
 }
 
 class FeedInteractionsEntity {
@@ -106,6 +154,18 @@ class FeedInteractionsEntity {
       saved: InteractionItemEntity.fromDto(dto.saved),
     );
   }
+
+  FeedInteractionsEntity copyWith({
+    InteractionItemEntity? like,
+    InteractionItemEntity? share,
+    InteractionItemEntity? saved,
+  }) {
+    return FeedInteractionsEntity(
+      like: like ?? this.like,
+      share: share ?? this.share,
+      saved: saved ?? this.saved,
+    );
+  }
 }
 
 class InteractionItemEntity {
@@ -118,6 +178,16 @@ class InteractionItemEntity {
     return InteractionItemEntity(
       status: dto.status,
       timestamp: dto.timestamp != null ? DateTime.tryParse(dto.timestamp!) : null,
+    );
+  }
+
+  InteractionItemEntity copyWith({
+    bool? status,
+    DateTime? timestamp,
+  }) {
+    return InteractionItemEntity(
+      status: status ?? this.status,
+      timestamp: timestamp ?? this.timestamp,
     );
   }
 }

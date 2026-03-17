@@ -9,6 +9,7 @@ import 'package:bl_inshort/features/webview/presentation/webview_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
 class FeedCard extends StatelessWidget {
@@ -26,720 +27,11 @@ class FeedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (item.layout) {
-      case FeedLayoutType.photoDominant:
-        return _PhotoDominantCard(item: item);
-      case FeedLayoutType.textDominant:
-        return _TextDominantCard(item: item);
-      case FeedLayoutType.gallery:
-        return _GalleryCard(item: item);
-      case FeedLayoutType.story:
-        return StoryCard(item: item);
-      case FeedLayoutType.htmlViewCard:
-        return _HTMLViewCard(item: item);
-      case FeedLayoutType.browserCard:
-        return _BrowserViewCard(item: item);
       case FeedLayoutType.standardCard:
         return StandardVisualCard(item: item, count: count, index: index);
+      default:
+        return StandardVisualCard(item: item, count: count, index: index);
     }
-  }
-}
-
-// 1) Photo-dominant layout (big image, text overlay/under)
-class _PhotoDominantCard extends StatelessWidget {
-  final FeedEntity item;
-
-  const _PhotoDominantCard({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return Container(
-      width: size.width,
-      height: size.height,
-      color: Colors.black,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (item.resources.isNotEmpty)
-            CachedNetworkImage(
-              imageUrl: item.resources[0].url,
-              fit: BoxFit.cover,
-              placeholder: (_, __) => Container(
-                width: size.width,
-                height: size.height,
-                color: Colors.grey.shade300,
-              ),
-              errorWidget: (_, __, ___) => Icon(Icons.image_not_supported),
-            ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  // ignore: deprecated_member_use
-                  Colors.black.withOpacity(0.7),
-                  // ignore: deprecated_member_use
-                  Colors.black.withOpacity(0.0),
-                ],
-                begin: Alignment.bottomCenter,
-                end: Alignment.center,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.source.name.toUpperCase(),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelSmall?.copyWith(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    item.title,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.headlineSmall?.copyWith(color: Colors.white),
-                  ),
-                  if (item.subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      item.subtitle,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 2) Text-dominant layout (more like Inshorts)
-class _TextDominantCard extends StatelessWidget {
-  final FeedEntity item;
-
-  const _TextDominantCard({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
-    return Container(
-      width: size.width,
-      height: size.height,
-      color: Theme.of(context).colorScheme.surface,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (item.resources.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: CachedNetworkImage(
-                    imageUrl: item.resources[0].url,
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(
-                      width: size.width,
-                      height: size.height,
-                      color: Colors.grey.shade300,
-                    ),
-                    errorWidget: (_, __, ___) =>
-                        Icon(Icons.image_not_supported),
-                  ),
-                ),
-              ),
-            const SizedBox(height: 16),
-            Text(item.title, style: Theme.of(context).textTheme.headlineSmall),
-            ...[
-              const SizedBox(height: 8),
-              Text(
-                item.subtitle,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-            const SizedBox(height: 12),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  item.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(
-                '• ${item.source}',
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(color: Colors.grey),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// 3) Gallery layout (horizontal slider)
-class _GalleryCard extends StatefulWidget {
-  final FeedEntity item;
-
-  const _GalleryCard({required this.item});
-
-  @override
-  State<_GalleryCard> createState() => _GalleryCardState();
-}
-
-class _GalleryCardState extends State<_GalleryCard> {
-  late final PageController _pageController;
-  int _currentIndex = 0;
-
-  List<String> get _images => widget.item.resources
-      .where((res) => res.contentType.name == 'image')
-      .map((res) => res.url)
-      .toList();
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final textTheme = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final size = MediaQuery.of(context).size;
-    final images = _images;
-
-    return Container(
-      width: size.width,
-      height: size.height,
-      color: colors.surface,
-      child: Stack(
-        children: [
-          // main content
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: images.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    final url = images[index];
-                    return Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: CachedNetworkImage(
-                          imageUrl: url,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            width: size.width,
-                            height: size.height,
-                            color: Theme.of(context).colorScheme.surfaceVariant,
-                          ),
-                          errorWidget: (_, __, ___) =>
-                              Icon(Icons.image_not_supported),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.item.source.name.toUpperCase(),
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.item.title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 32), // space for indicator overlay
-              // 👇 bottom indicator (dots + "line"-style active)
-            ],
-          ),
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // dot + line indicator
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: List.generate(images.length, (index) {
-                        final isActive = index == _currentIndex;
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          height: 6,
-                          width: isActive ? 16 : 6, // line vs dot
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(
-                              isActive ? 0.95 : 0.5,
-                            ),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                        );
-                      }),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 4) Story-style layout (full bleed image, center text)
-class _StoryCard extends StatelessWidget {
-  final FeedEntity item;
-
-  const _StoryCard({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final textTheme = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final size = MediaQuery.of(context).size;
-
-    return Container(
-      width: size.width,
-      height: size.height,
-      color: colors.surface,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (item.resources.isNotEmpty)
-            CachedNetworkImage(
-              imageUrl: item.resources.first.url,
-              fit: BoxFit.cover,
-              placeholder: (_, __) => Container(
-                width: size.width,
-                height: size.height,
-                color: Colors.grey.shade300,
-              ),
-              errorWidget: (_, __, ___) => Icon(Icons.image_not_supported),
-            ),
-          Container(color: Colors.black.withOpacity(0.4)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    item.source.name.toUpperCase(),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelSmall?.copyWith(color: Colors.white70),
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  item.title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (item.subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    item.subtitle,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                  ),
-                ],
-                const Spacer(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 5) html-style layout (full bleed image, center text)
-class _HTMLViewCard extends StatelessWidget {
-  final FeedEntity item;
-
-  const _HTMLViewCard({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Container(
-      width: size.width,
-      height: size.height,
-      color: Colors.black,
-      child: AdvancedWebView(
-        initialHtml: item.html,
-        title: item.title,
-        enableJavaScript: true,
-        showAppBar: false,
-        backgroundColor: Colors.white,
-        allowInlineMediaPlayback: true,
-      ),
-    );
-  }
-}
-
-// 6) Webview-style layout
-class _BrowserViewCard extends StatelessWidget {
-  final FeedEntity item;
-
-  const _BrowserViewCard({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Container(
-      width: size.width,
-      height: size.height,
-      color: Colors.black,
-      child: AdvancedWebView(
-        initialUrl: item.webUrl,
-        title: item.title,
-        enableJavaScript: true,
-        showAppBar: false,
-        backgroundColor: Colors.white,
-        allowInlineMediaPlayback: true,
-      ),
-    );
-  }
-}
-
-class RelatedImagesRow extends StatelessWidget {
-  final List<ResourceEntity> resources;
-  const RelatedImagesRow({super.key, required this.resources});
-
-  @override
-  Widget build(BuildContext context) {
-    final visibleCount = resources.length.clamp(1, 3);
-    return Container(
-      // margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      margin: const EdgeInsets.only(left: 10, right: 20, top: 0, bottom: 8),
-      height: 64,
-      child: Stack(
-        clipBehavior: Clip.none, // 🔥 allow overflow
-        children: [
-          // 🔹 Main pill
-          Positioned.fill(
-            child: Container(
-              padding: const EdgeInsets.only(
-                left: 18,
-                right: 16, // ❌ no arrow space reserved
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Color(0xFFD3D5D9),
-                    Color(0xFFB4B7BD),
-                    Color(0xFF8D9198),
-                  ],
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      "Messi Kolkata Event Row",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Color(0xFF2E2E2E),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-
-                  // 🔹 Overlapping images
-                  SizedBox(
-                    width: 44 + (visibleCount - 1) * 22,
-                    height: 44,
-                    child: Stack(
-                      children: [
-                        ...resources
-                            .take(visibleCount)
-                            .toList()
-                            .asMap()
-                            .entries
-                            .map((entry) {
-                              final idx = entry.key;
-                              final resource = entry.value;
-                              return _imageCircle(
-                                left: idx * 22,
-                                imageUrl: resource.url,
-                              );
-                            }),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // 🔹 Arrow button (HALF OUTSIDE – EXACT MATCH)
-          Positioned(
-            right: -18, // 🔥 critical: pushes it outside
-            top: 12,
-            bottom: 12,
-            child: GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (_) => RelatedImagesGallery(resources: resources),
-                  ),
-                );
-              },
-              child: Container(
-                width: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Color.fromARGB(255, 0, 0, 0),
-                    width: 3,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Color(0xFF2F80ED),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _imageCircle({required double left, required String imageUrl}) {
-    return Positioned(
-      left: left,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          // shape: BoxShape.circle,
-          // border: Border.all(color: Colors.white, width: 2),
-          image: DecorationImage(
-            image: NetworkImage(imageUrl),
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class RelatedImagesGallery extends StatefulWidget {
-  final List<ResourceEntity> resources;
-
-  const RelatedImagesGallery({super.key, required this.resources});
-
-  @override
-  State<RelatedImagesGallery> createState() => _RelatedImagesGalleryState();
-}
-
-class _RelatedImagesGalleryState extends State<RelatedImagesGallery> {
-  final PageController _pageController = PageController();
-  int _currentIndex = 0;
-  bool _controlsVisible = true;
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _toggleControls() {
-    setState(() {
-      _controlsVisible = !_controlsVisible;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // ===============================
-            // MAIN IMAGE SLIDER
-            // ===============================
-            GestureDetector(
-              onTap: _toggleControls,
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: widget.resources.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return InteractiveViewer(
-                    minScale: 1.0,
-                    maxScale: 4.0,
-                    child: Center(
-                      child: CachedNetworkImage(
-                        imageUrl: widget.resources[index].url,
-                        fit: BoxFit.contain,
-                        progressIndicatorBuilder: (context, child, progress) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // ===============================
-            // TOP BAR CONTROLS
-            // ===============================
-            AnimatedOpacity(
-              opacity: _controlsVisible ? 1 : 0,
-              duration: const Duration(milliseconds: 200),
-              child: Positioned(
-                top: 12,
-                left: 12,
-                right: 12,
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.share, color: Colors.white),
-                      onPressed: () {
-                        // TODO: integrate share logic
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // ===============================
-            // PAGE INDICATOR
-            // ===============================
-            AnimatedOpacity(
-              opacity: _controlsVisible ? 1 : 0,
-              duration: const Duration(milliseconds: 200),
-              child: Positioned(
-                bottom: 24,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${_currentIndex + 1} / ${widget.resources.length}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -936,18 +228,18 @@ class StandardVisualCard extends ConsumerWidget {
     const double contentHeight = 400;
     const double floatingOffset = -10;
 
-    final repo = ref.read(feedRepositoryProvider);
+    final feedController = ref.read(feedControllerProvider.notifier);
     final shareCallback = () async {
-      await repo.toggleUserAction(feedId: item.id, actionType: 'share');
+      await feedController.toggleUserAction(feedId: item.id, actionType: 'share');
       if (context.mounted) {
         _shareLink(context, "blinshort://feed/${item.id}", item.title);
       }
     };
     final onLike = () async {
-      await repo.toggleUserAction(feedId: item.id, actionType: 'like');
+      await feedController.toggleUserAction(feedId: item.id, actionType: 'like');
     };
     final onSave = () async {
-      await repo.toggleUserAction(feedId: item.id, actionType: 'save');
+      await feedController.toggleUserAction(feedId: item.id, actionType: 'save');
     };
     return Container(
       height: 560,
@@ -1047,6 +339,8 @@ class StandardVisualCard extends ConsumerWidget {
                   right: 16,
                   bottom: contentHeight - floatingOffset,
                   child: _FloatingActionRow(
+                    id: item.id,
+                    key: ValueKey(item.id),
                     onLike: onLike,
                     onSave: onSave,
                     shareLink: shareCallback,
@@ -1062,6 +356,7 @@ class StandardVisualCard extends ConsumerWidget {
 
           /// ✅ NEW BOTTOM INFO (added)
           _BottomInfoStrip(
+            key: ValueKey(item.id),
             numberRemaining: count - (index + 1),
             item: item,
             shareLink: shareCallback,
@@ -1084,8 +379,11 @@ class _FloatingActionRow extends StatefulWidget {
   final Future<void> Function() shareLink;
   final bool isLiked;
   final bool isSaved;
+  final String id;
 
   const _FloatingActionRow({
+    required super.key,
+    required this.id,
     required this.onLike,
     required this.onSave,
     required this.shareLink,
@@ -1097,11 +395,16 @@ class _FloatingActionRow extends StatefulWidget {
   State<_FloatingActionRow> createState() => _FloatingActionRowState();
 }
 
-class _FloatingActionRowState extends State<_FloatingActionRow> {
+class _FloatingActionRowState extends State<_FloatingActionRow>
+    with TickerProviderStateMixin {
   bool _isLiked = false;
   bool _isSaved = false;
-  double _likeScale = 1.0;
-  double _saveScale = 1.0;
+
+  late AnimationController _likeController;
+  late AnimationController _saveController;
+  late Animation<double> _likeAnimation;
+  late Animation<double> _saveAnimation;
+
   double _shareTurns = 0.0;
   bool _isLoadingLike = false;
   bool _isLoadingSave = false;
@@ -1111,6 +414,52 @@ class _FloatingActionRowState extends State<_FloatingActionRow> {
     super.initState();
     _isLiked = widget.isLiked;
     _isSaved = widget.isSaved;
+
+    _likeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 50),
+    );
+    _saveController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 50),
+    );
+
+    _likeAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.4).chain(
+          CurveTween(curve: Curves.easeOutQuart),
+        ),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.4, end: 1.0).chain(
+          CurveTween(curve: Curves.easeInQuad),
+        ),
+        weight: 50,
+      ),
+    ]).animate(_likeController);
+
+    _saveAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 1.4).chain(
+          CurveTween(curve: Curves.easeOutQuart),
+        ),
+        weight: 50,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.4, end: 1.0).chain(
+          CurveTween(curve: Curves.easeInQuad),
+        ),
+        weight: 50,
+      ),
+    ]).animate(_saveController);
+  }
+
+  @override
+  void dispose() {
+    _likeController.dispose();
+    _saveController.dispose();
+    super.dispose();
   }
 
   @override
@@ -1127,13 +476,20 @@ class _FloatingActionRowState extends State<_FloatingActionRow> {
   Future<void> _handleLike() async {
     if (_isLoadingLike) return;
 
+    // Optimistic Update
     setState(() {
-      _likeScale = 1.3;
-      _isLoadingLike = true;
+      _isLiked = !_isLiked;
     });
 
+    // Animation & Haptics
+    HapticFeedback.lightImpact();
+    _likeController.forward(from: 0.0);
+
+    _isLoadingLike = true;
     try {
       await widget.onLike();
+    } catch (e) {
+      // Revert on error
       if (mounted) {
         setState(() {
           _isLiked = !_isLiked;
@@ -1141,10 +497,7 @@ class _FloatingActionRowState extends State<_FloatingActionRow> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _likeScale = 1.0;
-          _isLoadingLike = false;
-        });
+        _isLoadingLike = false;
       }
     }
   }
@@ -1152,13 +505,20 @@ class _FloatingActionRowState extends State<_FloatingActionRow> {
   Future<void> _handleSave() async {
     if (_isLoadingSave) return;
 
+    // Optimistic Update
     setState(() {
-      _saveScale = 1.3;
-      _isLoadingSave = true;
+      _isSaved = !_isSaved;
     });
 
+    // Animation & Haptics
+    HapticFeedback.lightImpact();
+    _saveController.forward(from: 0.0);
+
+    _isLoadingSave = true;
     try {
       await widget.onSave();
+    } catch (e) {
+      // Revert on error
       if (mounted) {
         setState(() {
           _isSaved = !_isSaved;
@@ -1166,10 +526,7 @@ class _FloatingActionRowState extends State<_FloatingActionRow> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _saveScale = 1.0;
-          _isLoadingSave = false;
-        });
+        _isLoadingSave = false;
       }
     }
   }
@@ -1217,10 +574,8 @@ class _FloatingActionRowState extends State<_FloatingActionRow> {
                     horizontal: 4,
                     vertical: 0,
                   ),
-                  child: AnimatedScale(
-                    scale: _likeScale,
-                    duration: const Duration(milliseconds: 150),
-                    curve: Curves.easeInOut,
+                  child: ScaleTransition(
+                    scale: _likeAnimation,
                     child: Icon(
                       _isLiked ? Icons.favorite : Icons.favorite_border,
                       color: _isLiked ? Colors.red : colors.onSurfaceVariant,
@@ -1238,10 +593,8 @@ class _FloatingActionRowState extends State<_FloatingActionRow> {
                     horizontal: 4,
                     vertical: 0,
                   ),
-                  child: AnimatedScale(
-                    scale: _saveScale,
-                    duration: const Duration(milliseconds: 150),
-                    curve: Curves.easeInOut,
+                  child: ScaleTransition(
+                    scale: _saveAnimation,
                     child: Icon(
                       _isSaved ? Icons.bookmark : Icons.bookmark_border,
                       color: _isSaved ? Colors.yellow : colors.onSurfaceVariant,
@@ -1311,87 +664,6 @@ class _GlassPill extends StatelessWidget {
           ),
           child: child,
         ),
-      ),
-    );
-  }
-}
-
-/// ─────────────────────────────────────────────
-/// BOTTOM CTA
-/// ─────────────────────────────────────────────
-
-class _BottomCTA extends StatelessWidget {
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _BottomCTA({required this.isDark, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? const [Color(0xFF2E3440), Color(0xFF1B1F27)]
-                : const [Color(0xFFF3F4F7), Color(0xFFE6E8ED)],
-          ),
-        ),
-        child: Text(
-          'Tap to know more',
-          style: textTheme.titleSmall?.copyWith(height: 1.4),
-        ),
-      ),
-    );
-  }
-}
-
-class AdFeedCard extends StatelessWidget {
-  final Widget ad;
-
-  const AdFeedCard({required this.ad});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Container(
-      height: 560,
-      color: colors.surface,
-      child: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(child: ad),
-
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      "Sponsored",
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

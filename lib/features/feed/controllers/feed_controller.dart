@@ -1,4 +1,3 @@
-import 'package:bl_inshort/core/logging/console.dart';
 import 'package:bl_inshort/data/repositories/feed_repository.dart';
 import 'package:bl_inshort/features/settings/provider.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -116,6 +115,59 @@ class FeedController extends StateNotifier<FeedState> {
       );
     } catch (e) {
       state = state.copyWith(isLoadingMore: false, error: e);
+    }
+  }
+
+  Future<void> toggleUserAction({
+    required String feedId,
+    required String actionType,
+  }) async {
+    // 1. Find the item
+    final index = state.items.indexWhere((item) => item.id == feedId);
+    if (index == -1) return;
+
+    final item = state.items[index];
+    final currentInteractions = item.interactions;
+
+    // 2. Prepare new interactions (Optimistic)
+    late FeedInteractionsEntity updatedInteractions;
+
+    if (actionType == 'like') {
+      updatedInteractions = currentInteractions.copyWith(
+        like: currentInteractions.like.copyWith(
+          status: !currentInteractions.like.status,
+        ),
+      );
+    } else if (actionType == 'save' || actionType == 'saved') {
+      updatedInteractions = currentInteractions.copyWith(
+        saved: currentInteractions.saved.copyWith(
+          status: !currentInteractions.saved.status,
+        ),
+      );
+    } else if (actionType == 'share') {
+      updatedInteractions = currentInteractions.copyWith(
+        share: currentInteractions.share.copyWith(
+          status: true, // share is usually just triggered
+        ),
+      );
+    } else {
+      return;
+    }
+
+    // 3. Update local state
+    final updatedItems = [...state.items];
+    updatedItems[index] = item.copyWith(interactions: updatedInteractions);
+    state = state.copyWith(items: updatedItems);
+
+    // 4. Sync with repository
+    try {
+      await _repo.toggleUserAction(feedId: feedId, actionType: actionType);
+    } catch (e) {
+      // Revert on error
+      final revertedItems = [...state.items];
+      revertedItems[index] = item; // item is the original one
+      state = state.copyWith(items: revertedItems);
+      rethrow;
     }
   }
 }
