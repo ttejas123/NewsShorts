@@ -222,11 +222,7 @@ class StandardVisualCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    const double imageHeight = 310; // 👈 CONTROL IMAGE SIZE
-    const double contentHeight = 400;
-    const double floatingOffset = -10;
+    // Removed fixed height constants in favor of LayoutBuilder proportions
 
     final feedController = ref.read(feedControllerProvider.notifier);
     final shareCallback = () async {
@@ -248,107 +244,103 @@ class StandardVisualCard extends ConsumerWidget {
         children: [
           /// IMAGE + OVERLAYS
           Expanded(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                /// Image
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: imageHeight, // 🎯 FIXED IMAGE HEIGHT (tweak freely)
-                  child: CachedNetworkImage(
-                    imageUrl: item.resources.isNotEmpty
-                        ? item.resources.first.url
-                        : '',
-                    fit: BoxFit.cover,
-                    placeholder: (_, __) =>
-                        Container(color: Colors.grey.shade300),
-                    errorWidget: (_, __, ___) =>
-                        const Icon(Icons.image_not_supported),
-                  ),
-                ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final totalHeight = constraints.maxHeight;
+                final imageHeight = totalHeight * 0.35;
+                final contentHeight = totalHeight * 0.65;
+                const floatingHalfHeight = 18.0; // Approx half height of the pill
 
-                /// Gradient fade
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          colors.surface.withOpacity(isDark ? 0.85 : 0.65),
-                          colors.surface,
-                        ],
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    /// Image
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: imageHeight,
+                      child: CachedNetworkImage(
+                        imageUrl: item.resources.isNotEmpty
+                            ? item.resources.first.url
+                            : '',
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) =>
+                            Container(color: Colors.grey.shade300),
+                        errorWidget: (_, __, ___) =>
+                            const Icon(Icons.image_not_supported),
                       ),
                     ),
-                  ),
-                ),
 
-                /// CONTENT
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 20,
-                  height: contentHeight,
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                    color: colors.surface,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// Title
-                        Text(
-                          item.title,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            height: 1.25,
-                          ),
+                    /// Content (Bottom 65%)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: contentHeight,
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(16, 28, 16, 0),
+                        decoration: BoxDecoration(
+                          color: colors.surface,
                         ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// Title
+                            Text(
+                              item.title,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                height: 1.25,
+                              ),
+                            ),
 
-                        const SizedBox(height: 10),
+                            const SizedBox(height: 10),
 
-                        /// Description
-                        Text(
-                          item.description,
-                          maxLines: 6,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodyMedium?.copyWith(height: 1.45),
+                            /// Description
+                            Expanded(
+                              child: Text(
+                                item.description,
+                                maxLines: 6,
+                                overflow: TextOverflow.ellipsis,
+                                style: textTheme.bodyMedium?.copyWith(height: 1.45),
+                              ),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            /// Meta
+                            Text(
+                              '${item.source.name} • ${item.author.name}',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colors.onSurface.withOpacity(0.7),
+                              ),
+                            ),
+                          ],
                         ),
-
-                        const SizedBox(height: 10),
-
-                        /// Meta
-                        Text(
-                          '${item.source.name} • ${item.author.name}',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colors.onSurface.withOpacity(0.7),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
 
-                /// 🔥 FLOATING ACTION ROW
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: contentHeight - floatingOffset,
-                  child: _FloatingActionRow(
-                    id: item.id,
-                    key: ValueKey(item.id),
-                    onLike: onLike,
-                    onSave: onSave,
-                    shareLink: shareCallback,
-                    isLiked: item.interactions.like.status,
-                    isSaved: item.interactions.saved.status,
-                  ),
-                ),
-              ],
+                    /// 🔥 FLOATING ACTION ROW
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      top: imageHeight - floatingHalfHeight,
+                      child: _FloatingActionRow(
+                        key: ValueKey(item.id),
+                        id: item.id,
+                        onLike: onLike,
+                        onSave: onSave,
+                        shareLink: shareCallback,
+                        isLiked: item.interactions.like.status,
+                        isSaved: item.interactions.saved.status,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
 

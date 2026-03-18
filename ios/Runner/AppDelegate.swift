@@ -10,6 +10,9 @@ import google_mobile_ads
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
 
+    // 🔥 REQUIRED: Initialize AdMob SDK
+    GADMobileAds.sharedInstance().start(completionHandler: nil)
+
     // 🔹 Required: register Flutter plugins
     GeneratedPluginRegistrant.register(with: self)
 
