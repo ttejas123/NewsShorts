@@ -11,6 +11,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:async';
 import 'package:bl_inshort/l10n/app_localizations.dart';
+import 'package:bl_inshort/core/analytics/analytics_client.dart';
+import 'package:bl_inshort/features/feed/providers.dart';
 
 class LocalizationAdapter {
   static Locale? localeFromLanguage(LanguageEntity? lang) {
@@ -35,11 +37,27 @@ class App extends ConsumerStatefulWidget {
   ConsumerState<App> createState() => _AppState();
 }
 
-class _AppState extends ConsumerState<App> {
+class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeApp();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // Session ended or app backgrounded
+      final maxDepth = ref.read(currentFeedIndexProvider);
+      ref.read(analyticsClientProvider).logSessionEnd(maxFeedDepth: maxDepth);
+    }
   }
 
   void _initAds() {

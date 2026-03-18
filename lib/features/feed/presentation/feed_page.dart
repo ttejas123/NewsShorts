@@ -18,6 +18,7 @@ class FeedPage extends ConsumerStatefulWidget {
 
 class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
+  DateTime? _cardEnterTime;
 
   @override
   bool get wantKeepAlive => true;
@@ -25,6 +26,7 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
   @override
   void initState() {
     super.initState();
+    _cardEnterTime = DateTime.now();
     // Load initial batch
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(feedControllerProvider.notifier).loadInitial();
@@ -91,6 +93,18 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
               itemCount: state.items.length + (state.isLoadingMore ? 1 : 0),
               // isLoadingMore: state.isLoadingMore,
               onCardIndexChanged: (index) {
+                final currentIndex = ref.read(currentFeedIndexProvider);
+                
+                // 🔥 Log Dwell Time for previous item
+                if (_cardEnterTime != null && currentIndex < state.items.length) {
+                  final duration = DateTime.now().difference(_cardEnterTime!).inSeconds;
+                  if (duration > 0) {
+                    final oldItem = state.items[currentIndex];
+                    ref.read(analyticsClientProvider).logDwellTime(feedId: oldItem.id, durationSec: duration);
+                  }
+                }
+                _cardEnterTime = DateTime.now();
+
                 ref.read(currentFeedIndexProvider.notifier).state = index;
 
                 final total = state.items.length;
@@ -137,9 +151,11 @@ class _FeedPageState extends ConsumerState<FeedPage> with AutomaticKeepAliveClie
           /// 🔹 TOP OVERLAY CONTROLS
           _FeedTopOverlay(
             onSettingsTap: () {
+              ref.read(analyticsClientProvider).logButtonAction(buttonId: 'settings_top_nav');
               bottomNav.state = 0;
             },
             onRefreshTap: () {
+              ref.read(analyticsClientProvider).logButtonAction(buttonId: 'refresh_feed_btn');
               ref.read(feedControllerProvider.notifier).loadInitial();
               // scroll to top
               _scrollController.animateTo(

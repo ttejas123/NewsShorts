@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:bl_inshort/core/analytics/analytics_client.dart';
 
 class FeedCard extends StatelessWidget {
   final FeedEntity item;
@@ -226,15 +227,18 @@ class StandardVisualCard extends ConsumerWidget {
 
     final feedController = ref.read(feedControllerProvider.notifier);
     final shareCallback = () async {
+      ref.read(analyticsClientProvider).logButtonAction(buttonId: 'share_btn_feed_card');
       await feedController.toggleUserAction(feedId: item.id, actionType: 'share');
       if (context.mounted) {
         _shareLink(context, "blinshort://feed/${item.id}", item.title);
       }
     };
     final onLike = () async {
+      ref.read(analyticsClientProvider).logButtonAction(buttonId: 'like_btn_feed_card');
       await feedController.toggleUserAction(feedId: item.id, actionType: 'like');
     };
     final onSave = () async {
+      ref.read(analyticsClientProvider).logButtonAction(buttonId: 'save_btn_feed_card');
       await feedController.toggleUserAction(feedId: item.id, actionType: 'save');
     };
     return Container(

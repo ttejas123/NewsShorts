@@ -1,5 +1,6 @@
 import 'package:bl_inshort/core/network/interceptors/mock_interceptor.dart';
 import 'package:bl_inshort/core/network/interceptors/sysuid_interceptor.dart';
+import 'package:bl_inshort/core/network/interceptors/analytics_interceptor.dart';
 import 'package:dio/dio.dart';
 
 class ApiClient {
@@ -13,6 +14,7 @@ class ApiClient {
         ),
       ) {
     dio.interceptors.add(SysUidInterceptor(sysuid));
+    dio.interceptors.add(AnalyticsInterceptor());
     if (mockMode) {
       dio.interceptors.add(MockInterceptor());
     }

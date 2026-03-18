@@ -4,7 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:bl_inshort/core/ads/ads_runtime.dart';
 import 'package:bl_inshort/features/feed/presentation/widgets/ad_feed_card.dart';
 
-class AdSlotWidget extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:bl_inshort/core/analytics/analytics_client.dart';
+
+class AdSlotWidget extends ConsumerStatefulWidget {
   final FeedEntity meta;
   final AdsRuntime runtime;
   final Widget fallback;
@@ -17,10 +20,10 @@ class AdSlotWidget extends StatefulWidget {
   });
 
   @override
-  State<AdSlotWidget> createState() => _AdSlotWidgetState();
+  ConsumerState<AdSlotWidget> createState() => _AdSlotWidgetState();
 }
 
-class _AdSlotWidgetState extends State<AdSlotWidget> {
+class _AdSlotWidgetState extends ConsumerState<AdSlotWidget> {
   bool _failed = false;
   bool _loaded = false;
 
@@ -41,9 +44,17 @@ class _AdSlotWidgetState extends State<AdSlotWidget> {
           });
         },
         onFailed: () {
-          setState(() {
-            _failed = true;
-          });
+          ref.read(analyticsClientProvider).logAdFailure(
+            adProvider: widget.meta.provider.id,
+            format: 'FeedCard',
+            errorCode: 'Load_Failed',
+            errorMessage: 'Ad failed to load via AdSlotWidget',
+          );
+          if (mounted) {
+            setState(() {
+              _failed = true;
+            });
+          }
         },
       ),
     );
