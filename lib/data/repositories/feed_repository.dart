@@ -10,8 +10,13 @@ class FeedRepository {
     int? cursor,
     int limit = 20,
     String lang = "en",
+    String? pref,
   }) async {
-    final response = await dio.get("/api/feed?cursor=$cursor&limit=$limit&lang=$lang");
+    String url = "/api/feed?cursor=$cursor&limit=$limit&lang=$lang";
+    if (pref != null && pref.isNotEmpty) {
+      url += "&pref=$pref";
+    }
+    final response = await dio.get(url);
     return {
       'entity': FeedResponseDto.toEntityFromJson(response.data),
       'count': response.data['count'],

@@ -151,7 +151,7 @@ class FeedController extends StateNotifier<FeedState> {
         ),
       );
     } else if (actionType == 'view') {
-      // if (currentInteractions.view.status) return; // Already viewed
+      if (currentInteractions.view.status) return; // Already viewed
       updatedInteractions = currentInteractions.copyWith(
         view: currentInteractions.view.copyWith(
           status: true,
