@@ -51,7 +51,7 @@
 		<false/>
 		<!-- Google Ads -->
 		<key>GADApplicationIdentifier</key>
-		<string>ca-app-pub-4949055857881849~8969581222</string>
+		<string>ca-app-pub-4949055857881849~3580778315</string>
 		<!-- Firebase -->
 		<key>NSUserTrackingUsageDescription</key>
 		<string>This app uses data to improve user experience</string>

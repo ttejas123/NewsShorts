@@ -1,15 +1,26 @@
+import 'package:bl_inshort/features/settings/controllers/settings_controller.dart';
 import 'package:bl_inshort/features/settings/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+class PreferenceTopic {
+  final String title;
+  final IconData icon;
+
+  const PreferenceTopic({required this.title, required this.icon});
+}
 
 class PreferencesPage extends ConsumerWidget {
   const PreferencesPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(settingsControllerProvider);
+    final settingsState = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
+    final languageCode = settingsState.selectedLanguage?.code ?? 'en';
+
+    final tags = _getTagsForLanguage(languageCode);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -23,7 +34,7 @@ class PreferencesPage extends ConsumerWidget {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      context.pop(); // ✅ redirect to home
+                      context.pop();
                     },
                     child: const Icon(
                       Icons.arrow_back_ios_new,
@@ -32,46 +43,6 @@ class PreferencesPage extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ),
-            ),
-
-            // 🔹 Info Banner
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3A3300),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF6B5E00)),
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        '“Relevancy” has now changed to “Your Preferences”.',
-                        style: TextStyle(
-                          color: Color(0xFFFFF1A8),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      height: 24,
-                      width: 24,
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        size: 14,
-                        color: Colors.white,
-                      ),
-                    )
-                  ],
-                ),
               ),
             ),
 
@@ -122,58 +93,65 @@ class PreferencesPage extends ConsumerWidget {
 
             // 🔹 List
             Expanded(
-              child: ListView(
+              child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _PreferenceTile(
-                    title: 'Automobile',
-                    icon: Icons.directions_car,
-                    selected: controller.isTopicSelected('Automobile'),
-                    onTap: () => controller.togglePreference('Automobile'),
-                  ),
-                  _PreferenceTile(
-                    title: 'Business',
-                    icon: Icons.work,
-                    selected: controller.isTopicSelected('Business'),
-                    onTap: () => controller.togglePreference('Business'),
-                  ),
-                  _PreferenceTile(
-                    title: 'Education',
-                    icon: Icons.school,
-                    selected: controller.isTopicSelected('Education'),
-                    onTap: () => controller.togglePreference('Education'),
-                  ),
-                  _PreferenceTile(
-                    title: 'Entertainment',
-                    icon: Icons.music_note,
-                    selected: controller.isTopicSelected('Entertainment'),
-                    onTap: () => controller.togglePreference('Entertainment'),
-                  ),
-                  _PreferenceTile(
-                    title: 'Fashion',
-                    icon: Icons.checkroom,
-                    selected: controller.isTopicSelected('Fashion'),
-                    onTap: () => controller.togglePreference('Fashion'),
-                  ),
-                  _PreferenceTile(
-                    title: 'Hatke',
-                    icon: Icons.blur_on,
-                    selected: controller.isTopicSelected('Hatke'),
-                    onTap: () => controller.togglePreference('Hatke'),
-                  ),
-                  _PreferenceTile(
-                    title: 'Miscellaneous',
-                    icon: Icons.category,
-                    selected: controller.isTopicSelected('Miscellaneous'),
-                    onTap: () => controller.togglePreference('Miscellaneous'),
-                  ),
-                ],
+                itemCount: tags.length,
+                itemBuilder: (context, index) {
+                  final topic = tags[index];
+                  final currentPref = controller.getTopicPreference(topic.title);
+
+                  return _PreferenceTile(
+                    title: topic.title,
+                    icon: topic.icon,
+                    preference: currentPref,
+                    onInterested: () => controller.setInterest(
+                      topic.title,
+                      currentPref == InterestPreference.interested
+                          ? InterestPreference.neutral
+                          : InterestPreference.interested,
+                    ),
+                    onNotInterested: () => controller.setInterest(
+                      topic.title,
+                      currentPref == InterestPreference.notInterested
+                          ? InterestPreference.neutral
+                          : InterestPreference.notInterested,
+                    ),
+                  );
+                },
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  List<PreferenceTopic> _getTagsForLanguage(String lang) {
+    if (lang == 'ar') {
+      return const [
+        PreferenceTopic(title: 'محليات', icon: Icons.location_city),
+        PreferenceTopic(title: 'اقتصاد', icon: Icons.show_chart),
+        PreferenceTopic(title: 'حياتنا', icon: Icons.favorite),
+        PreferenceTopic(title: 'رياضة', icon: Icons.sports_soccer),
+        PreferenceTopic(title: 'العالم', icon: Icons.public),
+        PreferenceTopic(title: 'صحة', icon: Icons.health_and_safety),
+        PreferenceTopic(title: 'تعليم', icon: Icons.school),
+        PreferenceTopic(title: 'أخبار', icon: Icons.newspaper),
+      ];
+    } else {
+      return const [
+        PreferenceTopic(title: 'World', icon: Icons.public),
+        PreferenceTopic(title: 'Economy', icon: Icons.show_chart),
+        PreferenceTopic(title: 'Life', icon: Icons.eco),
+        PreferenceTopic(title: 'Sports', icon: Icons.sports_basketball),
+        PreferenceTopic(title: 'Health', icon: Icons.health_and_safety),
+        PreferenceTopic(title: 'Politics', icon: Icons.gavel),
+        PreferenceTopic(title: 'Technology', icon: Icons.memory),
+        PreferenceTopic(title: 'Security', icon: Icons.security),
+        PreferenceTopic(title: 'Business', icon: Icons.business),
+        PreferenceTopic(title: 'Science', icon: Icons.science),
+      ];
+    }
   }
 }
 
@@ -208,14 +186,16 @@ class _FilterChip extends StatelessWidget {
 class _PreferenceTile extends StatelessWidget {
   final String title;
   final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
+  final InterestPreference preference;
+  final VoidCallback onInterested;
+  final VoidCallback onNotInterested;
 
   const _PreferenceTile({
     required this.title,
     required this.icon,
-    required this.selected,
-    required this.onTap,
+    required this.preference,
+    required this.onInterested,
+    required this.onNotInterested,
   });
 
   @override
@@ -247,11 +227,19 @@ class _PreferenceTile extends StatelessWidget {
           ),
           _ActionIcon(
             icon: Icons.thumb_up_alt_outlined,
-            selected: selected,
-            onTap: onTap,
+            activeIcon: Icons.thumb_up_alt,
+            selected: preference == InterestPreference.interested,
+            onTap: onInterested,
+            activeColor: const Color(0xFF4EA3FF),
           ),
           const SizedBox(width: 10),
-          const _ActionIcon(icon: Icons.thumb_down_alt_outlined),
+          _ActionIcon(
+            icon: Icons.thumb_down_alt_outlined,
+            activeIcon: Icons.thumb_down_alt,
+            selected: preference == InterestPreference.notInterested,
+            onTap: onNotInterested,
+            activeColor: Colors.redAccent,
+          ),
         ],
       ),
     );
@@ -260,13 +248,17 @@ class _PreferenceTile extends StatelessWidget {
 
 class _ActionIcon extends StatelessWidget {
   final IconData icon;
+  final IconData activeIcon;
   final bool selected;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
+  final Color activeColor;
 
   const _ActionIcon({
     required this.icon,
+    required this.activeIcon,
     this.selected = false,
-    this.onTap,
+    required this.onTap,
+    required this.activeColor,
   });
 
   @override
@@ -277,13 +269,13 @@ class _ActionIcon extends StatelessWidget {
         height: 34,
         width: 34,
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF102A44) : const Color(0xFF1F1F1F),
+          color: selected ? activeColor.withOpacity(0.15) : const Color(0xFF1F1F1F),
           borderRadius: BorderRadius.circular(17),
-          border: selected ? Border.all(color: const Color(0xFF4EA3FF)) : null,
+          border: selected ? Border.all(color: activeColor.withOpacity(0.5)) : null,
         ),
         child: Icon(
-          icon,
-          color: selected ? const Color(0xFF4EA3FF) : const Color(0xFF6F6F6F),
+          selected ? activeIcon : icon,
+          color: selected ? activeColor : const Color(0xFF6F6F6F),
           size: 16,
         ),
       ),

@@ -21,6 +21,9 @@ abstract class SettingsRepository {
 
   Future<String> getPreferences();
   Future<void> setPreferences(String pref);
+
+  Future<Map<String, String>> getInterests();
+  Future<void> setInterests(Map<String, String> interests);
 }
 
 class SharedPrefsSettingsRepository implements SettingsRepository {
@@ -31,6 +34,7 @@ class SharedPrefsSettingsRepository implements SettingsRepository {
   static const _onboardingIntroCompletedKey = 'onboarding_intro_completed';
   static const _sysuidKey = 'sysuid';
   static const _preferencesKey = 'pref';
+  static const _interestsKey = 'interests';
 
   final SharedPreferences _prefs;
 
@@ -108,5 +112,22 @@ class SharedPrefsSettingsRepository implements SettingsRepository {
   @override
   Future<void> setPreferences(String pref) async {
     await _prefs.setString(_preferencesKey, pref);
+  }
+
+  @override
+  Future<Map<String, String>> getInterests() async {
+    final json = _prefs.getString(_interestsKey);
+    if (json == null) return {};
+    try {
+      final Map<String, dynamic> decoded = jsonDecode(json);
+      return decoded.map((key, value) => MapEntry(key, value.toString()));
+    } catch (_) {
+      return {};
+    }
+  }
+
+  @override
+  Future<void> setInterests(Map<String, String> interests) async {
+    await _prefs.setString(_interestsKey, jsonEncode(interests));
   }
 }

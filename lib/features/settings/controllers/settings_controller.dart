@@ -72,6 +72,7 @@ class SettingsController extends StateNotifier<SettingsState> {
       repository.isOnboardingIntroCompleted(),
       repository.getSysUid(),
       repository.getPreferences(),
+      repository.getInterests(),
     ]);
 
     String? sysuid = results[5] as String?;
@@ -89,6 +90,15 @@ class SettingsController extends StateNotifier<SettingsState> {
       onboardingIntroCompleted: results[4] as bool,
       sysuid: sysuid,
       preferences: results[6] as String,
+      interests: (results[7] as Map<String, String>).map(
+        (key, value) => MapEntry(
+          key,
+          InterestPreference.values.firstWhere(
+            (e) => e.name == value,
+            orElse: () => InterestPreference.neutral,
+          ),
+        ),
+      ),
     );
   }
 
@@ -130,11 +140,15 @@ class SettingsController extends StateNotifier<SettingsState> {
   }
 
   // 🔹 Content Interest
-  void setInterest(String topic, InterestPreference preference) {
+  Future<void> setInterest(String topic, InterestPreference preference) async {
     final updated = Map<String, InterestPreference>.from(state.interests);
     updated[topic] = preference;
 
     state = state.copyWith(interests: updated);
+
+    // Persist as map of strings
+    final persistenceMap = updated.map((key, value) => MapEntry(key, value.name));
+    await repository.setInterests(persistenceMap);
   }
 
   Future<void> togglePreference(String topic) async {
@@ -156,6 +170,18 @@ class SettingsController extends StateNotifier<SettingsState> {
   bool isTopicSelected(String topic) {
     if (state.preferences.isEmpty) return false;
     return state.preferences.split(',').map((e) => e.trim()).contains(topic);
+  }
+
+  InterestPreference getTopicPreference(String topic) {
+    return state.interests[topic] ?? InterestPreference.neutral;
+  }
+
+  bool isTopicInterested(String topic) {
+    return getTopicPreference(topic) == InterestPreference.interested;
+  }
+
+  bool isTopicNotInterested(String topic) {
+    return getTopicPreference(topic) == InterestPreference.notInterested;
   }
 
   bool isRegionSelected(String region) {
