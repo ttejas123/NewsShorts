@@ -68,6 +68,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     ref.read(themeControllerProvider.notifier).loadTheme();
   }
 
+  void _initAnalytics() {
+    unawaited(ref.read(analyticsClientProvider).init());
+  }
+
   Future<void> _initializeApp() async {
     // Let first frame render
     await Future.delayed(Duration.zero);
@@ -76,6 +80,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     // 👇 init heavy stuff here
     _initAds();
     _loadTheme();
+    _initAnalytics();
   }
 
   @override

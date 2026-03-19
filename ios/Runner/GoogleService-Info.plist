@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.blInshort</string>
+	<string>com.yallanews.yalla</string>
 	<key>PROJECT_ID</key>
 	<string>yallanewsappanalytics</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1091770405479:ios:9f472692baefd8d4c33ac2</string>
+	<string>1:1091770405479:ios:864ea4684540ba88c33ac2</string>
 </dict>
 </plist>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1091770405479",
+    "project_id": "yallanewsappanalytics",
+    "storage_bucket": "yallanewsappanalytics.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1091770405479:android:8f15356ea5b27992c33ac2",
+        "android_client_info": {
+          "package_name": "com.example.bl_inshort"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBARMPqf_vmUoTyTheMZApIUmHIyjHHm5w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

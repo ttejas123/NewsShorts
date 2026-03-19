@@ -1,5 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:bl_inshort/core/logging/Console.dart';
 
 class AnalyticsClient {
   final FirebaseAnalytics _analytics;
@@ -10,26 +12,37 @@ class AnalyticsClient {
     await _analytics.logScreenView(screenName: screenName);
   }
 
+  Future<void> init() async {
+    try {
+      await _analytics.setAnalyticsCollectionEnabled(true);
+      final id = await _analytics.appInstanceId;
+      console.info('Analytics: Initialized. App Instance ID: $id');
+    } catch (e) {
+      console.error('Analytics: Initialization failed. Error: $e');
+    }
+  }
+
   Future<void> logEvent({
     required String name,
     Map<String, Object>? parameters,
   }) async {
-    await _analytics.logEvent(name: name, parameters: parameters);
+    try {
+      console.info('Analytics: Logging event "$name" with parameters: $parameters');
+      await _analytics.logEvent(name: name, parameters: parameters);
+      console.success('Analytics: Successfully logged event "$name"');
+    } catch (e, stack) {
+      console.error('Analytics: FAILED to log event "$name". Error: $e');
+      debugPrintStack(stackTrace: stack);
+    }
   }
 
   // Common Custom Events
 
   Future<void> logButtonAction({required String buttonId, String? context}) async {
-    print("button clicked $buttonId");
-    await FirebaseAnalytics.instance.logEvent(
-      name: "test_event_123",
-      parameters: {"source": "manual_test"},
-    );
     await logEvent(name: 'button_clicked', parameters: {
       'button_id': buttonId,
       if (context != null) 'context': context,
     });
-    print("button clicked 2 $buttonId");
   }
 
   Future<void> logAdFailure({
