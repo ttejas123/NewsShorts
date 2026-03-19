@@ -1,11 +1,16 @@
+import 'package:bl_inshort/features/settings/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PreferencesPage extends StatelessWidget {
+class PreferencesPage extends ConsumerWidget {
   const PreferencesPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(settingsControllerProvider);
+    final controller = ref.read(settingsControllerProvider.notifier);
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -119,14 +124,49 @@ class PreferencesPage extends StatelessWidget {
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: const [
-                  _PreferenceTile(title: 'Automobile', icon: Icons.directions_car),
-                  _PreferenceTile(title: 'Business', icon: Icons.work),
-                  _PreferenceTile(title: 'Education', icon: Icons.school),
-                  _PreferenceTile(title: 'Entertainment', icon: Icons.music_note),
-                  _PreferenceTile(title: 'Fashion', icon: Icons.checkroom),
-                  _PreferenceTile(title: 'Hatke', icon: Icons.blur_on),
-                  _PreferenceTile(title: 'Miscellaneous', icon: Icons.category),
+                children: [
+                  _PreferenceTile(
+                    title: 'Automobile',
+                    icon: Icons.directions_car,
+                    selected: controller.isTopicSelected('Automobile'),
+                    onTap: () => controller.togglePreference('Automobile'),
+                  ),
+                  _PreferenceTile(
+                    title: 'Business',
+                    icon: Icons.work,
+                    selected: controller.isTopicSelected('Business'),
+                    onTap: () => controller.togglePreference('Business'),
+                  ),
+                  _PreferenceTile(
+                    title: 'Education',
+                    icon: Icons.school,
+                    selected: controller.isTopicSelected('Education'),
+                    onTap: () => controller.togglePreference('Education'),
+                  ),
+                  _PreferenceTile(
+                    title: 'Entertainment',
+                    icon: Icons.music_note,
+                    selected: controller.isTopicSelected('Entertainment'),
+                    onTap: () => controller.togglePreference('Entertainment'),
+                  ),
+                  _PreferenceTile(
+                    title: 'Fashion',
+                    icon: Icons.checkroom,
+                    selected: controller.isTopicSelected('Fashion'),
+                    onTap: () => controller.togglePreference('Fashion'),
+                  ),
+                  _PreferenceTile(
+                    title: 'Hatke',
+                    icon: Icons.blur_on,
+                    selected: controller.isTopicSelected('Hatke'),
+                    onTap: () => controller.togglePreference('Hatke'),
+                  ),
+                  _PreferenceTile(
+                    title: 'Miscellaneous',
+                    icon: Icons.category,
+                    selected: controller.isTopicSelected('Miscellaneous'),
+                    onTap: () => controller.togglePreference('Miscellaneous'),
+                  ),
                 ],
               ),
             ),
@@ -136,7 +176,6 @@ class PreferencesPage extends StatelessWidget {
     );
   }
 }
-
 
 class _FilterChip extends StatelessWidget {
   final String title;
@@ -169,8 +208,15 @@ class _FilterChip extends StatelessWidget {
 class _PreferenceTile extends StatelessWidget {
   final String title;
   final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
 
-  const _PreferenceTile({required this.title, required this.icon});
+  const _PreferenceTile({
+    required this.title,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +245,11 @@ class _PreferenceTile extends StatelessWidget {
               ),
             ),
           ),
-          const _ActionIcon(icon: Icons.thumb_up_alt_outlined),
+          _ActionIcon(
+            icon: Icons.thumb_up_alt_outlined,
+            selected: selected,
+            onTap: onTap,
+          ),
           const SizedBox(width: 10),
           const _ActionIcon(icon: Icons.thumb_down_alt_outlined),
         ],
@@ -210,19 +260,33 @@ class _PreferenceTile extends StatelessWidget {
 
 class _ActionIcon extends StatelessWidget {
   final IconData icon;
+  final bool selected;
+  final VoidCallback? onTap;
 
-  const _ActionIcon({required this.icon});
+  const _ActionIcon({
+    required this.icon,
+    this.selected = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 34,
-      width: 34,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F1F1F),
-        borderRadius: BorderRadius.circular(17),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 34,
+        width: 34,
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF102A44) : const Color(0xFF1F1F1F),
+          borderRadius: BorderRadius.circular(17),
+          border: selected ? Border.all(color: const Color(0xFF4EA3FF)) : null,
+        ),
+        child: Icon(
+          icon,
+          color: selected ? const Color(0xFF4EA3FF) : const Color(0xFF6F6F6F),
+          size: 16,
+        ),
       ),
-      child: Icon(icon, color: const Color(0xFF6F6F6F), size: 16),
     );
   }
 }

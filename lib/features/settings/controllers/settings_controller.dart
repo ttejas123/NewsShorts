@@ -13,6 +13,7 @@ class SettingsState {
   final Map<String, InterestPreference> interests;
   final bool isInitialized;
   final String? sysuid;
+  final String preferences;
 
   /// NEW
   final Set<String> selectedRegions;
@@ -24,6 +25,7 @@ class SettingsState {
     this.interests = const {},
     this.selectedRegions = const {},
     this.isInitialized = false,
+    this.preferences = "",
     this.onboardingIntroCompleted = false,
     this.sysuid,
   });
@@ -37,6 +39,7 @@ class SettingsState {
     bool? isInitialized,
     bool? onboardingIntroCompleted,
     String? sysuid,
+    String? preferences,
   }) {
     return SettingsState(
       selectedLanguage: selectedLanguage ?? this.selectedLanguage,
@@ -48,6 +51,7 @@ class SettingsState {
       onboardingIntroCompleted:
           onboardingIntroCompleted ?? this.onboardingIntroCompleted,
       sysuid: sysuid ?? this.sysuid,
+      preferences: preferences ?? this.preferences,
     );
   }
 }
@@ -67,6 +71,7 @@ class SettingsController extends StateNotifier<SettingsState> {
       repository.getSelectedRegions(),
       repository.isOnboardingIntroCompleted(),
       repository.getSysUid(),
+      repository.getPreferences(),
     ]);
 
     String? sysuid = results[5] as String?;
@@ -83,6 +88,7 @@ class SettingsController extends StateNotifier<SettingsState> {
       isInitialized: true,
       onboardingIntroCompleted: results[4] as bool,
       sysuid: sysuid,
+      preferences: results[6] as String,
     );
   }
 
@@ -129,6 +135,27 @@ class SettingsController extends StateNotifier<SettingsState> {
     updated[topic] = preference;
 
     state = state.copyWith(interests: updated);
+  }
+
+  Future<void> togglePreference(String topic) async {
+    final List<String> currentPrefs = state.preferences.isEmpty
+        ? []
+        : state.preferences.split(',').map((e) => e.trim()).toList();
+
+    if (currentPrefs.contains(topic)) {
+      currentPrefs.remove(topic);
+    } else {
+      currentPrefs.add(topic);
+    }
+
+    final newPrefsString = currentPrefs.join(',');
+    state = state.copyWith(preferences: newPrefsString);
+    await repository.setPreferences(newPrefsString);
+  }
+
+  bool isTopicSelected(String topic) {
+    if (state.preferences.isEmpty) return false;
+    return state.preferences.split(',').map((e) => e.trim()).contains(topic);
   }
 
   bool isRegionSelected(String region) {
