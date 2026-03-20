@@ -13,7 +13,6 @@ class SourceView extends ConsumerWidget {
       return const Center(child: Text("No source available"));
     }
 
-    // TODO: I just want to show devices battery percentage in the app bar so nothing else need not even padding
     return Scaffold(
       body: SafeArea(
         top: true,

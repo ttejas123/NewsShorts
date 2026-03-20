@@ -2,6 +2,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -242,7 +244,27 @@ class _AdvancedWebViewState extends State<AdvancedWebView> {
             : null,
         body: Stack(
           children: [
-            WebViewWidget(controller: _controller),
+            // ── gestureRecognizers ───────────────────────────────────────
+            // Platform views (WebViewWidget) don't automatically compete in
+            // Flutter's gesture arena. We explicitly register:
+            //   • VerticalDragGestureRecognizer → page scroll
+            //   • ScaleGestureRecognizer        → pinch-zoom
+            // Once the outer PageView is locked by the shell's axis-locker, these
+            // recognizers win the arena and the WebView's native touch handler
+            // processes the events normally — including diagonal scrolls.
+            WebViewWidget(
+              controller: _controller,
+              // Register a VerticalDragGestureRecognizer so the WebView's
+              // native layer can win vertical scroll events in Flutter's
+              // gesture arena — critical when nested inside a PageView.
+              // Pinch-zoom is handled natively by the platform WebView
+              // and doesn't need explicit registration here.
+              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                Factory<VerticalDragGestureRecognizer>(
+                  () => VerticalDragGestureRecognizer(),
+                ),
+              },
+            ),
             if (_isLoading)
               const Center(child: CircularProgressIndicator()),
             if (_isError)

@@ -86,6 +86,9 @@ class _HomeShellPageState extends ConsumerState<HomeShellPage> {
   @override
   Widget build(BuildContext context) {
     final controller = ref.read(bottomNavIndexProvider.notifier);
+    // Watch the active page index so we can disable axis-locking on pages
+    // that need native touch (e.g. WebView in SourceView).
+    final currentPageIndex = ref.watch(bottomNavIndexProvider);
 
     ref.listen<int>(bottomNavIndexProvider, (previous, next) {
       if (_pageController.hasClients && _pageController.page?.round() != next) {
@@ -97,25 +100,35 @@ class _HomeShellPageState extends ConsumerState<HomeShellPage> {
       }
     });
 
+    // Apply axis-locking on FeedPage (1) and SourceView (2).
+    // This prevents diagonal swipes from accidentally switching pages.
+    // SourceView re-enables it so the WebView doesn't trigger page changes
+    // on diagonal scrolls; the WebView receives gestures via its own
+    // gestureRecognizers once the PageView is locked by NeverScrollablePhysics.
+    // SettingsPage (0) is left unrestricted — its ListView competes naturally.
+    final bool axisLockEnabled = currentPageIndex == 1 || currentPageIndex == 2;
+
     return Scaffold(
       body: GestureDetector(
-        // We use onPan* (which tracks both axes simultaneously) to detect
-        // the dominant direction and route accordingly.
-        onPanStart: _onPanStart,
-        onPanUpdate: _onPanUpdate,
-        onPanEnd: _onPanEnd,
-        // Make sure taps and other gestures still pass through.
+        onPanStart: axisLockEnabled ? _onPanStart : null,
+        onPanUpdate: axisLockEnabled ? _onPanUpdate : null,
+        onPanEnd: axisLockEnabled ? _onPanEnd : null,
         behavior: HitTestBehavior.translucent,
         child: PageView(
           controller: _pageController,
-          // When the vertical axis is dominant, freeze horizontal paging so
-          // the child's vertical scroll (e.g. StackedCardFeed) wins.
           physics: _pageViewLocked
               ? const NeverScrollableScrollPhysics()
               : const PageScrollPhysics(parent: ClampingScrollPhysics()),
           onPageChanged: (index) {
             controller.state = index;
             HapticFeedback.selectionClick();
+            // Reset lock when the user swipes to a new page.
+            if (_pageViewLocked) {
+              setState(() {
+                _pageViewLocked = false;
+                _axisCommitted = false;
+              });
+            }
           },
           children: const [SettingsPage(), FeedPage(), SourceView()],
         ),
