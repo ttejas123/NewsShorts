@@ -293,11 +293,12 @@ class StandardVisualCard extends ConsumerWidget {
                             /// Title
                             Text(
                               item.title,
-                              maxLines: 3,
+                              maxLines: 4,
                               overflow: TextOverflow.ellipsis,
                               style: textTheme.titleLarge?.copyWith(
+                                fontSize: 20,
                                 fontWeight: FontWeight.w600,
-                                height: 1.25,
+                                height: 1.35,
                               ),
                             ),
 
@@ -307,9 +308,13 @@ class StandardVisualCard extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 item.description,
-                                maxLines: 6,
-                                overflow: TextOverflow.ellipsis,
-                                style: textTheme.bodyMedium?.copyWith(height: 1.45),
+                                maxLines: 10,
+                                overflow: TextOverflow.visible,
+                                style: textTheme.titleLarge?.copyWith(
+                                  height: 1.35,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 18,
+                                ),
                               ),
                             ),
 
@@ -413,11 +418,11 @@ class _FloatingActionRowState extends State<_FloatingActionRow>
 
     _likeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 50),
+      duration: const Duration(milliseconds: 150),
     );
     _saveController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 50),
+      duration: const Duration(milliseconds: 150),
     );
 
     _likeAnimation = TweenSequence<double>([
@@ -545,7 +550,7 @@ class _FloatingActionRowState extends State<_FloatingActionRow>
             children: [
               const Icon(
                 Icons.fiber_new_sharp,
-                size: 12,
+                size: 14,
                 color: Colors.blueAccent,
               ),
               const SizedBox(width: 6),
@@ -575,7 +580,7 @@ class _FloatingActionRowState extends State<_FloatingActionRow>
                     child: Icon(
                       _isLiked ? Icons.favorite : Icons.favorite_border,
                       color: _isLiked ? Colors.red : colors.onSurfaceVariant,
-                      size: 16,
+                      size: 19,
                     ),
                   ),
                 ),
@@ -593,8 +598,8 @@ class _FloatingActionRowState extends State<_FloatingActionRow>
                     scale: _saveAnimation,
                     child: Icon(
                       _isSaved ? Icons.bookmark : Icons.bookmark_border,
-                      color: _isSaved ? Colors.yellow : colors.onSurfaceVariant,
-                      size: 16,
+                      color: _isSaved ? Colors.blue : colors.onSurfaceVariant,
+                      size: 19,
                     ),
                   ),
                 ),
@@ -615,7 +620,7 @@ class _FloatingActionRowState extends State<_FloatingActionRow>
                     child: Icon(
                       Icons.share,
                       color: colors.onSurfaceVariant,
-                      size: 16,
+                      size: 19,
                     ),
                   ),
                 ),
@@ -646,9 +651,9 @@ class _GlassPill extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: colors.surface.withOpacity(0.7),
+            color: colors.surface.withOpacity(1),
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(

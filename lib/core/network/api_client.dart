@@ -9,7 +9,7 @@ class ApiClient {
   ApiClient({required bool mockMode, String? sysuid})
     : dio = Dio(
         BaseOptions(
-          baseUrl: "http://54.163.60.177",
+          baseUrl: "http://54.163.60.177",//"http://54.163.60.177",
           connectTimeout: const Duration(seconds: 5),
         ),
       ) {
