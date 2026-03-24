@@ -345,6 +345,7 @@ class StandardVisualCard extends ConsumerWidget {
                         shareLink: shareCallback,
                         isLiked: item.interactions.like.status,
                         isSaved: item.interactions.saved.status,
+                        sourceName: item.source.name,
                       ),
                     ),
                   ],
@@ -381,6 +382,7 @@ class _FloatingActionRow extends StatefulWidget {
   final bool isLiked;
   final bool isSaved;
   final String id;
+  final String sourceName;
 
   const _FloatingActionRow({
     required super.key,
@@ -390,6 +392,7 @@ class _FloatingActionRow extends StatefulWidget {
     required this.shareLink,
     required this.isLiked,
     required this.isSaved,
+    required this.sourceName
   });
 
   @override
@@ -555,7 +558,7 @@ class _FloatingActionRowState extends State<_FloatingActionRow>
               ),
               const SizedBox(width: 6),
               Text(
-                'Yalla News',
+                widget.sourceName,
                 style: Theme.of(
                   context,
                 ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
